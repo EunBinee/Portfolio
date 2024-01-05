@@ -1,0 +1,5 @@
+[*.{cs,vb}]
+
+dotnet_analyzer_diagnostic.category-Style.severity = none
+
+dotnet_analyzer_diagnostic.category-CodeQuality.severity = none
