@@ -22,6 +22,7 @@ public class PlayerInput
     public float mouseX;             //마우스 좌우
     public float jumpMovement;       //점프
 }
+//[Serializable]
 [Serializable]
 public class PlayerOption
 {
@@ -33,6 +34,8 @@ public class PlayerOption
 public class PlayerCurState
 {
     //* 플레이어의 현재 상태
+    public bool isPerformingAction; // 공격 같은 액션 도중인지 체크
+
     public bool isWalking;
     public bool isRunning;
     public bool isSprinting;
