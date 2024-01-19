@@ -6,6 +6,7 @@ using System;
 [Serializable]
 public class PlayerMovementInput
 {
+    //! 플레이어의 움직임 Input만을 받는 곳입니다.
     public PlayerController playerController;
     public PlayerMovement playerMovement;
     private PlayerComponents P_com;
@@ -13,6 +14,7 @@ public class PlayerMovementInput
     private PlayerOption P_option;
     private PlayerCurState P_state;
     private PlayerCurValue P_value;
+    private PlayerCamera P_camera;
 
     public void PlayerMovementInput_Init(PlayerController _playerController, PlayerMovement _playerMovement)
     {
@@ -27,6 +29,7 @@ public class PlayerMovementInput
         P_option = playerController.playerOption;
         P_state = playerController.playerCurState;
         P_value = playerController.playerCurValue;
+        P_camera = playerController.playerCamera;
     }
 
     public void HandleInputs()
@@ -70,11 +73,14 @@ public class PlayerMovementInput
     //* - 전력질주
     private void HandleSprint()
     {
+        //TODO:주석 나중에 풀기
+        /*
         if (P_state.isPerformingAction)
             return;
         if (!P_state.isGround)
             return;
-
+        */
+        //!---------------------------//
         if (Input.GetKey(KeyCode.LeftControl) && P_value.moveAmount > 0)
         {
             P_state.isWalking = false;
