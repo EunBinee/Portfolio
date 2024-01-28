@@ -334,7 +334,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &589331470825027946
 Transform:
   m_ObjectHideFlags: 0
@@ -343,7 +343,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2546699600994103469}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1297,7 +1297,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8002183765651987069
 Transform:
   m_ObjectHideFlags: 0
@@ -1555,6 +1555,8 @@ GameObject:
   - component: {fileID: 7037121153859098581}
   - component: {fileID: 7037121153859098580}
   - component: {fileID: 4052349110993474090}
+  - component: {fileID: 1625882872331194765}
+  - component: {fileID: 1625882872331194764}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1592,9 +1594,9 @@ Rigidbody:
   m_AngularDrag: 0.05
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
+  m_Interpolate: 2
+  m_Constraints: 112
+  m_CollisionDetection: 1
 --- !u!136 &7037121153859098580
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1619,16 +1621,94 @@ Animator:
   m_GameObject: {fileID: 7320366396170261226}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: ee0cbfdd9dd04d14c9b5a91f7f0e30ed, type: 3}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c2347fc1fb9eb3d45af8de96eec03572, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &1625882872331194765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7320366396170261226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0666a62ad74d61240841e480d1c07143, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerMovement: {fileID: 0}
+  playerComponents:
+    rigid: {fileID: 0}
+    anim: {fileID: 0}
+    capsuleCollider: {fileID: 0}
+  playerInput:
+    verticalMovement: 0
+    horizontalMovement: 0
+    mouseY: 0
+    mouseX: 0
+    jumpMovement: 0
+  playerOption:
+    sprintSpeed: 15
+    runSpeed: 10
+    walkSpeed: 5
+    rotSpeed: 20
+    originGravity: -9.81
+    gravity: 0
+    groundLayerMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    groundCheckDistance: 2
+    groundCheckThreshold: 0.01
+    maxSlopAngle: 50
+    forwardCheckDistance: 0.1
+  playerCurState:
+    isPerformingAction: 0
+    isWalking: 0
+    isRunning: 0
+    isSprinting: 0
+    isJumping: 0
+    isStrafing: 0
+    isDodge: 0
+    isGround: 0
+    isForwardBlocked: 0
+    isOnSteepSlop: 0
+  playerCurValue:
+    moveAmount: 0
+    moveDirection: {x: 0, y: 0, z: 0}
+    jumpDirection: {x: 0, y: 0, z: 0}
+    castRadius: 0
+    groundNormal: {x: 0, y: 0, z: 0}
+    groundCross: {x: 0, y: 0, z: 0}
+    groundDistance: 0
+    groundSlopeAngle: 0
+    forwardSlopeAngle: 0
+  playerCamera:
+    playerCamera: {fileID: 0}
+    playerCameraPivot: {fileID: 0}
+    cameraObj: {fileID: 0}
+--- !u!114 &1625882872331194764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7320366396170261226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59af4396e28c2aa41b790cbad6db1b9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerController: {fileID: 0}
+  playerMovementInput:
+    playerController: {fileID: 0}
+    playerMovement: {fileID: 0}
 --- !u!1 &7472771006493025656
 GameObject:
   m_ObjectHideFlags: 0
@@ -1929,7 +2009,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8668533357739113490
 Transform:
   m_ObjectHideFlags: 0

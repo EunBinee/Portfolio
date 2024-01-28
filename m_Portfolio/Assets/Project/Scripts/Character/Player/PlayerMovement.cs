@@ -47,11 +47,118 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        playerMovementInput.HandleInputs();
-        HandleAllPlayerLocomotion();
+        PlayerMovement_Animation();             //* 움직임 애니메이션
+        playerMovementInput.HandleInputs();     //* 움직임 INPUT
+        HandleAllPlayerLocomotion();            //* 움직임 구현
     }
     void FixedUpdate()
     {
+
+    }
+
+    //* 움직임 애니메이션-------------------------------------------------------------------------------------------------------------//
+
+    private void PlayerMovement_Animation()
+    {
+        float horizontal = 0;
+        float vertical = 0;
+
+        #region  Horizontal
+        if (P_input.horizontalMovement > 0 && P_input.horizontalMovement <= 0.5f)
+        {
+            //0보다 큰데 0.5보다 같거나 작은 경우
+            horizontal = 0.5f;
+        }
+        else if (P_input.horizontalMovement > 0.5f)
+        {
+            //0.5보다 큰경우
+            horizontal = 1;
+        }
+        else if (P_input.horizontalMovement < 0 && P_input.horizontalMovement >= -0.5f)
+        {
+            //0보다 작은데 -0.5보다 같거나 큰 경우
+            horizontal = -0.5f;
+        }
+        else if (P_input.horizontalMovement < -0.5f)
+        {
+            //-0.5보다 작은 경우
+            horizontal = -1;
+        }
+        else
+        {
+            //아무것도 누르지 않은 경우
+            horizontal = 0;
+        }
+        #endregion
+
+        #region Vertical
+        if (P_input.verticalMovement > 0 && P_input.verticalMovement <= 0.5f)
+        {
+            //0보다 큰데 0.5보다 같거나 작은 경우
+            vertical = 0.5f;
+        }
+        else if (P_input.verticalMovement > 0.5f)
+        {
+            //0.5보다 큰경우
+            vertical = 1;
+        }
+        else if (P_input.verticalMovement < 0 && P_input.verticalMovement >= -0.5f)
+        {
+            //0보다 작은데 -0.5보다 같거나 큰 경우
+            vertical = -0.5f;
+        }
+        else if (P_input.verticalMovement < -0.5f)
+        {
+            //-0.5보다 작은 경우
+            vertical = -1;
+        }
+        else
+        {
+            //아무것도 누르지 않은 경우
+            vertical = 0;
+        }
+        #endregion
+
+        if (P_state.isSprinting) // *전력질주
+        {
+            P_state.isStrafing = false; //뛸때는 주목 해제
+            P_com.anim.SetFloat("Horizontal", 0, 0f, Time.deltaTime);
+            P_com.anim.SetFloat("Vertical", 2, 0f, Time.deltaTime);
+        }
+        else
+        {
+            if (P_state.isStrafing) //* 주목 (카메라 forward)
+            {
+                if (P_state.isWalking)
+                {
+                    P_com.anim.SetFloat("Horizontal", horizontal / 2, 0.2f, Time.deltaTime);
+                    P_com.anim.SetFloat("Vertical", vertical / 2, 0.2f, Time.deltaTime);
+                }
+                else if (P_state.isRunning)
+                {
+                    P_com.anim.SetFloat("Horizontal", horizontal, 0.2f, Time.deltaTime);
+                    P_com.anim.SetFloat("Vertical", vertical, 0.2f, Time.deltaTime);
+                }
+            }
+            else
+            {
+                if (P_state.isWalking)
+                {
+                    P_com.anim.SetFloat("Vertical", P_value.moveAmount / 2, 0.2f, Time.deltaTime);   //상
+                    P_com.anim.SetFloat("Horizontal", 0, 0.2f, Time.deltaTime);
+                }
+                else if (P_state.isRunning)
+                {
+                    P_com.anim.SetFloat("Vertical", P_value.moveAmount, 0.2f, Time.deltaTime);   //상
+                    P_com.anim.SetFloat("Horizontal", 0, 0.2f, Time.deltaTime);          //하
+                }
+            }
+            if (P_value.moveAmount == 0) // * 움직임이 없을경우
+            {
+                P_com.anim.SetFloat("Vertical", 0, 0.2f, Time.deltaTime);   //상
+                P_com.anim.SetFloat("Horizontal", 0, 0.2f, Time.deltaTime); //하
+            }
+        }
 
     }
 
@@ -171,7 +278,6 @@ public class PlayerMovement : MonoBehaviour
         P_value.moveDirection = P_camera.cameraObj.transform.forward * P_input.verticalMovement;
         P_value.moveDirection = P_value.moveDirection + P_camera.cameraObj.transform.right * P_input.horizontalMovement;
         P_value.moveDirection.Normalize();
-
 
         if ((P_state.isSprinting || P_state.isRunning) || P_state.isWalking)
         {
