@@ -9,6 +9,9 @@ public class GameData
 {
     [Header("플레이어")]
     public GameObject player;
+    public Transform playerHeadPos;
+    public Transform playerBackPos;
+
     public Transform GetPlayerTransform()
     {
         return player.GetComponent<Transform>();
@@ -27,5 +30,8 @@ public class GameData
     public GameObject playerCamera;
     public GameObject playerCameraPivot;
     public Camera cameraObj;
-
+    public CameraController GetCameraController()
+    {
+        return cameraObj.GetComponent<CameraController>();
+    }
 }

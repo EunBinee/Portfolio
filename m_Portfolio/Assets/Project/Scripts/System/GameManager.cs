@@ -17,10 +17,12 @@ public class GameManager : MonoBehaviour
         }
     }
     public GameData gameData;
+    public CameraController cameraController;
 
     private void Awake()
     {
         Init();
+
     }
 
     void Start()
@@ -37,6 +39,8 @@ public class GameManager : MonoBehaviour
         }
         else
             Destroy(this.gameObject);
+
+        cameraController = gameData.GetCameraController();
     }
     void Update()
     {

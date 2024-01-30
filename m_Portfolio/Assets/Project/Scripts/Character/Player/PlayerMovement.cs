@@ -49,11 +49,12 @@ public class PlayerMovement : MonoBehaviour
     {
         PlayerMovement_Animation();             //* 움직임 애니메이션
         playerMovementInput.HandleInputs();     //* 움직임 INPUT
-        HandleAllPlayerLocomotion();            //* 움직임 구현
+                                                // HandleAllPlayerLocomotion();            //* 움직임 구현
+
     }
     void FixedUpdate()
     {
-
+        HandleAllPlayerLocomotion();            //* 움직임 구현
     }
 
     //* 움직임 애니메이션-------------------------------------------------------------------------------------------------------------//
@@ -165,12 +166,31 @@ public class PlayerMovement : MonoBehaviour
     //* 플레이어 움직임---------------------------------------------------------------------------------------------------------------//
     private void HandleAllPlayerLocomotion()
     {
+        Update_Physics();
         CheckedForward();
         HandleGroundCheck();            // 바닥체크
         HandlePlayerRotation();         // 플레이어 회전
         HandlePlayerMovement();         // 플레이어 움직임
     }
+    //* 물리(중력)
+    private void Update_Physics()
+    {
+        if (P_state.isGround && !P_state.isJumping)
+        {
+            //지면에 잘 붙어있을 경우
+            P_option.gravity = 0f;
+        }
+        else if (!P_state.isGround && !P_state.isJumping)
+        {
+            P_option.gravity += Time.fixedDeltaTime * P_option.originGravity;
+        }
+        else if (!P_state.isGround && P_state.isJumping)
+        {
+            //Debug.Log("Here");
+            P_option.gravity = P_option.originGravity * P_option.jumpGravity;
+        }
 
+    }
     //* 플레이어 바닥 체크
     private void HandleGroundCheck()
     {
@@ -299,6 +319,7 @@ public class PlayerMovement : MonoBehaviour
             p_velocity = p_velocity + Vector3.up * P_option.gravity;
             P_com.rigid.velocity = p_velocity;
         }
-
+        else
+            P_com.rigid.velocity = Vector3.zero;
     }
 }
