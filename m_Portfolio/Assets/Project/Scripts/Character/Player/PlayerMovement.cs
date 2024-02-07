@@ -361,18 +361,18 @@ public class PlayerMovement : MonoBehaviour
         Vector3 jumpVelocity = Vector3.up * 30f;
         P_com.rigid.mass = 10;
         curJumpY = P_com.rigid.velocity.y;
-        P_com.rigid.velocity = new Vector3(P_com.rigid.velocity.x, Mathf.Sqrt(P_option.jumpHeight * -2.0f * P_option.jumpGravity), P_com.rigid.velocity.z);
+
         if (P_value.moveAmount > 0)
         {
             //* 뛰면서 점프
-            Debug.Log("뛰면서 점프1");
+            P_com.rigid.velocity = new Vector3(P_com.rigid.velocity.x, Mathf.Sqrt((P_option.jumpHeight * 1.5f) * -2.0f * P_option.jumpGravity), P_com.rigid.velocity.z);
+            playerController.PlayAnimation(PlayerController.CurAnimation.jumpUp);
         }
         else
         {
             //* 제자리 점프
-            Debug.Log("제자리 점프1");
-
-            playerController.PlayAnimation(PlayerController.CurAnimation.jumpUp);
+            P_com.rigid.velocity = new Vector3(P_com.rigid.velocity.x, Mathf.Sqrt(P_option.jumpHeight * -2.0f * P_option.jumpGravity), P_com.rigid.velocity.z);
+            playerController.PlayAnimation(PlayerController.CurAnimation.jumpUp_inPlace);
         }
     }
     public bool CheckJumpAnimationEnd()
@@ -398,7 +398,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (P_state.isJumping && !P_state.isGround)
         {
-            P_com.rigid.velocity += new Vector3(-0.5f * Time.deltaTime, P_option.jumpGravity * 1.5f * Time.deltaTime, -0.5f * Time.deltaTime);
+            P_com.rigid.velocity += new Vector3(-0.2f * Time.deltaTime, P_option.jumpGravity * 1.5f * Time.deltaTime, -0.2f * Time.deltaTime);
             P_com.rigid.velocity += new Vector3(0, P_option.jumpGravity * Time.deltaTime, 0);
         }
         if (curJumpY <= P_com.rigid.velocity.y)
@@ -415,13 +415,11 @@ public class PlayerMovement : MonoBehaviour
                 if (P_value.moveAmount > 0)
                 {
                     //* 뛰면서 점프
-                    Debug.Log("뛰면서 점프2");
                 }
                 else
                 {
                     //* 제자리 점프
-                    Debug.Log("제자리 점프2");
-                    playerController.PlayAnimation(PlayerController.CurAnimation.jumpDown);
+                    playerController.PlayAnimation(PlayerController.CurAnimation.jumpDown_inPlace);
                 }
             }
         }

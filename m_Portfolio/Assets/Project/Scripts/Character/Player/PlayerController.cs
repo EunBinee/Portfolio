@@ -23,7 +23,9 @@ public class PlayerController : MonoBehaviour
     public enum CurAnimation
     {
         jumpUp,
-        jumpDown
+        jumpDown,
+        jumpUp_inPlace,
+        jumpDown_inPlace
     }
 
     void Start()
@@ -63,6 +65,12 @@ public class PlayerController : MonoBehaviour
                 break;
             case CurAnimation.jumpDown:
                 P_com.anim.SetTrigger("isJumpingDown");
+                break;
+            case CurAnimation.jumpUp_inPlace:
+                P_com.anim.SetTrigger("isJumpingUp_inPlace");
+                break;
+            case CurAnimation.jumpDown_inPlace:
+                P_com.anim.SetTrigger("isJumpingDown_inPlace");
                 break;
             default:
                 break;
