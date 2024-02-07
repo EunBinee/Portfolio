@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -163,6 +165,8 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
+
+
     //* 플레이어 움직임---------------------------------------------------------------------------------------------------------------//
     private void HandleAllPlayerLocomotion()
     {
@@ -177,19 +181,25 @@ public class PlayerMovement : MonoBehaviour
     {
         if (P_state.isGround && !P_state.isJumping)
         {
-            //지면에 잘 붙어있을 경우
+            if (P_com.rigid.mass != 1)
+                P_com.rigid.mass = 1;
             P_option.gravity = 0f;
         }
         else if (!P_state.isGround && !P_state.isJumping)
         {
-            P_option.gravity += Time.fixedDeltaTime * P_option.originGravity;
+            //점프X 땅X
+            //! 절벽에서 떨어질 수 있도록
+            if (P_com.rigid.mass != 10)
+                P_com.rigid.mass = 10;
+            P_com.rigid.velocity += new Vector3(P_option.jumpGravity * Time.deltaTime, P_option.jumpGravity * 2 * Time.deltaTime, P_option.jumpGravity * Time.deltaTime);
+
         }
         else if (!P_state.isGround && P_state.isJumping)
         {
-            //Debug.Log("Here");
-            P_option.gravity = P_option.originGravity * P_option.jumpGravity;
+            //* 점프 O 땅 X
+            //! 점프
+            jumpVelocity();
         }
-
     }
     //* 플레이어 바닥 체크
     private void HandleGroundCheck()
@@ -211,8 +221,13 @@ public class PlayerMovement : MonoBehaviour
             // 상태값 조정 //가파른 경사 있는지 체크
             P_state.isOnSteepSlop = P_value.groundSlopeAngle >= P_option.maxSlopAngle;
             //!=>
-            P_value.groundDistance = hit.distance;// Mathf.Max((hit.distance - _capsuleRadiusDiff - P_option.groundCheckThreshold), -10f);
-            P_state.isGround = (P_value.groundDistance <= 0.03f) && !P_state.isOnSteepSlop;
+            P_value.groundDistance = hit.distance;
+
+            bool isResult = (P_value.groundDistance <= 0.03f) && !P_state.isOnSteepSlop;
+            JumpGroundCheck(isResult);
+            P_state.isGround = isResult;
+
+
         }
 
         //경사면의 회전축벡터 => 플레이어가 경사면을 따라 움직일수있도록 월드 이동 벡터를 회전
@@ -253,6 +268,11 @@ public class PlayerMovement : MonoBehaviour
     //* 플레이어 회전
     private void HandlePlayerRotation()
     {
+        if (P_state.isJumping)
+            return;
+        if (!P_state.isGround)
+            return;
+
         if (P_state.isStrafing)
         {
             // 주목중일 경우, 카메라 forward를 바라봄
@@ -289,10 +309,10 @@ public class PlayerMovement : MonoBehaviour
     //* 플레이어 움직임
     private void HandlePlayerMovement()
     {
-        /*
-        if(!P_state.isGround)
+        if (P_state.isJumping)
             return;
-        */
+        if (!P_state.isGround)
+            return;
 
         //* 카메라 기준의 움직임
         P_value.moveDirection = P_camera.cameraObj.transform.forward * P_input.verticalMovement;
@@ -301,6 +321,7 @@ public class PlayerMovement : MonoBehaviour
 
         if ((P_state.isSprinting || P_state.isRunning) || P_state.isWalking)
         {
+
             P_value.moveDirection.y = 0;
             if (P_state.isSprinting)
             {
@@ -322,4 +343,124 @@ public class PlayerMovement : MonoBehaviour
         else
             P_com.rigid.velocity = Vector3.zero;
     }
+
+    //* -------------------------------------------------------------------------------------------------------------//
+    //* 점프 구현
+    bool isJumpDown = false; // 점프후 떨어지는 애니메이션 실행 했는지 체크
+    float curJumpY = 0;      // 점프 중, 위로 올라가는 중인지 떨어지는 중인지 체크
+    bool jumpAnim;   // 점핑 애니메이션 실행중.
+    public void Jump()
+    {
+        if (jumpAnim)
+        {
+            Debug.Log("아직 점프중");
+            P_state.isJumping = false;
+            return;
+        }
+
+        Vector3 jumpVelocity = Vector3.up * 30f;
+        P_com.rigid.mass = 10;
+        curJumpY = P_com.rigid.velocity.y;
+        P_com.rigid.velocity = new Vector3(P_com.rigid.velocity.x, Mathf.Sqrt(P_option.jumpHeight * -2.0f * P_option.jumpGravity), P_com.rigid.velocity.z);
+        if (P_value.moveAmount > 0)
+        {
+            //* 뛰면서 점프
+            Debug.Log("뛰면서 점프1");
+        }
+        else
+        {
+            //* 제자리 점프
+            Debug.Log("제자리 점프1");
+
+            playerController.PlayAnimation(PlayerController.CurAnimation.jumpUp);
+        }
+    }
+    public bool CheckJumpAnimationEnd()
+    {
+        AnimatorStateInfo stateInfo = P_com.anim.GetCurrentAnimatorStateInfo(0);
+
+        Debug.Log("Jump Check");
+
+        if (stateInfo.IsName("Jump_up") && stateInfo.normalizedTime >= 1f)
+        {
+            Debug.Log("Jump up animation ended");
+            if (stateInfo.IsName("Jump_down") && stateInfo.normalizedTime >= 1f)
+            {
+                // 점프 애니메이션이 끝났음을 처리하는 코드 추가
+                Debug.Log("Jump down animation ended");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void jumpVelocity()
+    {
+        if (P_state.isJumping && !P_state.isGround)
+        {
+            P_com.rigid.velocity += new Vector3(-0.5f * Time.deltaTime, P_option.jumpGravity * 1.5f * Time.deltaTime, -0.5f * Time.deltaTime);
+            P_com.rigid.velocity += new Vector3(0, P_option.jumpGravity * Time.deltaTime, 0);
+        }
+        if (curJumpY <= P_com.rigid.velocity.y)
+        {
+            //* 올라가는 중
+            curJumpY = P_com.rigid.velocity.y;
+        }
+        else
+        {
+            //* 내려가는 중
+            if (!isJumpDown)
+            {
+                isJumpDown = true;
+                if (P_value.moveAmount > 0)
+                {
+                    //* 뛰면서 점프
+                    Debug.Log("뛰면서 점프2");
+                }
+                else
+                {
+                    //* 제자리 점프
+                    Debug.Log("제자리 점프2");
+                    playerController.PlayAnimation(PlayerController.CurAnimation.jumpDown);
+                }
+            }
+        }
+
+    }
+
+    //* 점프후 바닥체크
+    private void JumpGroundCheck(bool isResult)
+    {
+        if (P_state.isJumping && !P_state.isGround)
+        {
+            if (isResult)
+            {
+
+                P_com.rigid.velocity = new Vector3(P_com.rigid.velocity.x, 0, P_com.rigid.velocity.z);
+
+                P_state.isJumping = false;
+                P_com.rigid.mass = 1;
+                P_option.gravity = 0f;
+
+                isJumpDown = false;
+            }
+        }
+    }
+
+    //* JumpAnimation 체크
+    public void AnimJumpUp()
+    {
+        if (!jumpAnim)
+        {
+            jumpAnim = true;
+        }
+    }
+    public void AnimJumpDown()
+    {
+        if (jumpAnim)
+        {
+            jumpAnim = false;
+        }
+    }
+
 }

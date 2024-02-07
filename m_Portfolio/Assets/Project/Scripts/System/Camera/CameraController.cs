@@ -129,7 +129,7 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    #region 일반 카메라 (조준X, 주목X)
+    #region 일반 카메라 (조준X, 주목X
     //* 카메라 움직임
     private void CameraActions()
     {

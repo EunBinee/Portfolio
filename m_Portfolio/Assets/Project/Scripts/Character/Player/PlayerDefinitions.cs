@@ -40,7 +40,10 @@ public class PlayerOption
     [Space]
     public float originGravity = -9.81f; //원래 중력값
     public float gravity = 0f;           // 직접 제어하는 중력
-    public float jumpGravity = 3;
+
+    public float jumpGravity = -20f;
+    public float jumpHeight = 3;
+
 
     [Space]
     [Tooltip("지면으로 체크할 레이어 설정")]

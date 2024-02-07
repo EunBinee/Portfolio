@@ -37,6 +37,7 @@ public class PlayerMovementInput
         P_input.mouseX = Input.GetAxis("Mouse X");
         P_input.mouseY = Input.GetAxis("Mouse Y");
 
+        HandleJump();
         HandleSprint();     //? 전력 질주 Input 체크
         HandleWalkOrRun();  //? 걷기 뛰기 Input 체크
 
@@ -132,13 +133,20 @@ public class PlayerMovementInput
         }
     }
     //* - 점프 (구현 안함.)
-    private bool HandleJump()
+    private void HandleJump()
     {
         //점프 안하면 false;
         //하면 true
         //일단 false러
-
-        return false;
+        if (Input.GetButtonDown("Jump"))
+        {
+            if (P_state.isGround && !P_state.isJumping)
+            {
+                //플레이어가 바닥에 있고, 점프중이 아닐때만.
+                P_state.isJumping = true;
+                playerMovement.Jump();
+            }
+        }
     }
 }
 

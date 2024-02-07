@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,7 +20,11 @@ public class PlayerController : MonoBehaviour
     private PlayerCurState P_state => playerCurState;
     private PlayerCurValue P_value => playerCurValue;
     private PlayerCamera P_camera => playerCamera;
-
+    public enum CurAnimation
+    {
+        jumpUp,
+        jumpDown
+    }
 
     void Start()
     {
@@ -49,6 +54,20 @@ public class PlayerController : MonoBehaviour
         P_camera.cameraObj = GameManager.Instance.gameData.cameraObj;
     }
 
+    public void PlayAnimation(CurAnimation curAnimation)
+    {
+        switch (curAnimation)
+        {
+            case CurAnimation.jumpUp:
+                P_com.anim.SetTrigger("isJumpingUp");
+                break;
+            case CurAnimation.jumpDown:
+                P_com.anim.SetTrigger("isJumpingDown");
+                break;
+            default:
+                break;
+        }
+    }
     void Update()
     {
 
