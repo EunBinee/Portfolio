@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
@@ -9,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
 {
     //! 플레이어의 움직임을 구현하는 스크립트입니다.
     public PlayerController playerController;
+    public PlayerAnimationController playerAnimationController;
     public PlayerMovementInput playerMovementInput; //플레이어 움직임 관련 Input
     private PlayerComponents P_com;
     private PlayerInput P_input;
@@ -33,6 +35,7 @@ public class PlayerMovement : MonoBehaviour
         playerMovementInput.PlayerMovementInput_Init(playerController, this);
 
         P_value.castRadius = P_com.capsuleCollider.radius * 0.9f;
+        playerAnimationController = playerController.playerAnimController;
     }
 
     private void PlayerControllerValue()
@@ -49,7 +52,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        PlayerMovement_Animation();             //* 움직임 애니메이션
+        playerAnimationController.PlayerMovement_Animation();             //* 움직임 애니메이션
         playerMovementInput.HandleInputs();     //* 움직임 INPUT
                                                 // HandleAllPlayerLocomotion();            //* 움직임 구현
 
@@ -58,114 +61,6 @@ public class PlayerMovement : MonoBehaviour
     {
         HandleAllPlayerLocomotion();            //* 움직임 구현
     }
-
-    //* 움직임 애니메이션-------------------------------------------------------------------------------------------------------------//
-
-    private void PlayerMovement_Animation()
-    {
-        float horizontal = 0;
-        float vertical = 0;
-
-        #region  Horizontal
-        if (P_input.horizontalMovement > 0 && P_input.horizontalMovement <= 0.5f)
-        {
-            //0보다 큰데 0.5보다 같거나 작은 경우
-            horizontal = 0.5f;
-        }
-        else if (P_input.horizontalMovement > 0.5f)
-        {
-            //0.5보다 큰경우
-            horizontal = 1;
-        }
-        else if (P_input.horizontalMovement < 0 && P_input.horizontalMovement >= -0.5f)
-        {
-            //0보다 작은데 -0.5보다 같거나 큰 경우
-            horizontal = -0.5f;
-        }
-        else if (P_input.horizontalMovement < -0.5f)
-        {
-            //-0.5보다 작은 경우
-            horizontal = -1;
-        }
-        else
-        {
-            //아무것도 누르지 않은 경우
-            horizontal = 0;
-        }
-        #endregion
-
-        #region Vertical
-        if (P_input.verticalMovement > 0 && P_input.verticalMovement <= 0.5f)
-        {
-            //0보다 큰데 0.5보다 같거나 작은 경우
-            vertical = 0.5f;
-        }
-        else if (P_input.verticalMovement > 0.5f)
-        {
-            //0.5보다 큰경우
-            vertical = 1;
-        }
-        else if (P_input.verticalMovement < 0 && P_input.verticalMovement >= -0.5f)
-        {
-            //0보다 작은데 -0.5보다 같거나 큰 경우
-            vertical = -0.5f;
-        }
-        else if (P_input.verticalMovement < -0.5f)
-        {
-            //-0.5보다 작은 경우
-            vertical = -1;
-        }
-        else
-        {
-            //아무것도 누르지 않은 경우
-            vertical = 0;
-        }
-        #endregion
-
-        if (P_state.isSprinting) // *전력질주
-        {
-            P_state.isStrafing = false; //뛸때는 주목 해제
-            P_com.anim.SetFloat("Horizontal", 0, 0f, Time.deltaTime);
-            P_com.anim.SetFloat("Vertical", 2, 0f, Time.deltaTime);
-        }
-        else
-        {
-            if (P_state.isStrafing) //* 주목 (카메라 forward)
-            {
-                if (P_state.isWalking)
-                {
-                    P_com.anim.SetFloat("Horizontal", horizontal / 2, 0.2f, Time.deltaTime);
-                    P_com.anim.SetFloat("Vertical", vertical / 2, 0.2f, Time.deltaTime);
-                }
-                else if (P_state.isRunning)
-                {
-                    P_com.anim.SetFloat("Horizontal", horizontal, 0.2f, Time.deltaTime);
-                    P_com.anim.SetFloat("Vertical", vertical, 0.2f, Time.deltaTime);
-                }
-            }
-            else
-            {
-                if (P_state.isWalking)
-                {
-                    P_com.anim.SetFloat("Vertical", P_value.moveAmount / 2, 0.2f, Time.deltaTime);   //상
-                    P_com.anim.SetFloat("Horizontal", 0, 0.2f, Time.deltaTime);
-                }
-                else if (P_state.isRunning)
-                {
-                    P_com.anim.SetFloat("Vertical", P_value.moveAmount, 0.2f, Time.deltaTime);   //상
-                    P_com.anim.SetFloat("Horizontal", 0, 0.2f, Time.deltaTime);          //하
-                }
-            }
-            if (P_value.moveAmount == 0) // * 움직임이 없을경우
-            {
-                P_com.anim.SetFloat("Vertical", 0, 0.2f, Time.deltaTime);   //상
-                P_com.anim.SetFloat("Horizontal", 0, 0.2f, Time.deltaTime); //하
-            }
-        }
-
-    }
-
-
 
     //* 플레이어 움직임---------------------------------------------------------------------------------------------------------------//
     private void HandleAllPlayerLocomotion()
@@ -189,17 +84,22 @@ public class PlayerMovement : MonoBehaviour
         {
             //점프X 땅X
             //! 절벽에서 떨어질 수 있도록
+            if (!P_state.isFallig)
+            {
+                Falling();
+            }
             if (P_com.rigid.mass != 10)
                 P_com.rigid.mass = 10;
             P_com.rigid.velocity += new Vector3(P_option.jumpGravity * Time.deltaTime, P_option.jumpGravity * 2 * Time.deltaTime, P_option.jumpGravity * Time.deltaTime);
-
         }
+
         else if (!P_state.isGround && P_state.isJumping)
         {
             //* 점프 O 땅 X
             //! 점프
             jumpVelocity();
         }
+
     }
     //* 플레이어 바닥 체크
     private void HandleGroundCheck()
@@ -222,12 +122,14 @@ public class PlayerMovement : MonoBehaviour
             P_state.isOnSteepSlop = P_value.groundSlopeAngle >= P_option.maxSlopAngle;
             //!=>
             P_value.groundDistance = hit.distance;
-
+            if (P_state.isFallig)
+            {
+                CheckFallingDown();
+            }
             bool isResult = (P_value.groundDistance <= 0.03f) && !P_state.isOnSteepSlop;
             JumpGroundCheck(isResult);
+            FallingGroundCheck(isResult);
             P_state.isGround = isResult;
-
-
         }
 
         //경사면의 회전축벡터 => 플레이어가 경사면을 따라 움직일수있도록 월드 이동 벡터를 회전
@@ -349,6 +251,7 @@ public class PlayerMovement : MonoBehaviour
     bool isJumpDown = false; // 점프후 떨어지는 애니메이션 실행 했는지 체크
     float curJumpY = 0;      // 점프 중, 위로 올라가는 중인지 떨어지는 중인지 체크
     bool jumpAnim;   // 점핑 애니메이션 실행중.
+
     public void Jump()
     {
         if (jumpAnim)
@@ -366,13 +269,13 @@ public class PlayerMovement : MonoBehaviour
         {
             //* 뛰면서 점프
             P_com.rigid.velocity = new Vector3(P_com.rigid.velocity.x, Mathf.Sqrt((P_option.jumpHeight * 1.5f) * -2.0f * P_option.jumpGravity), P_com.rigid.velocity.z);
-            playerController.PlayAnimation(PlayerController.CurAnimation.jumpUp);
+            playerAnimationController.PlayAnimation(PlayerAnimationController.CurAnimation.jumpUp);
         }
         else
         {
             //* 제자리 점프
             P_com.rigid.velocity = new Vector3(P_com.rigid.velocity.x, Mathf.Sqrt(P_option.jumpHeight * -2.0f * P_option.jumpGravity), P_com.rigid.velocity.z);
-            playerController.PlayAnimation(PlayerController.CurAnimation.jumpUp_inPlace);
+            playerAnimationController.PlayAnimation(PlayerAnimationController.CurAnimation.jumpUp_inPlace);
         }
     }
     public bool CheckJumpAnimationEnd()
@@ -419,7 +322,7 @@ public class PlayerMovement : MonoBehaviour
                 else
                 {
                     //* 제자리 점프
-                    playerController.PlayAnimation(PlayerController.CurAnimation.jumpDown_inPlace);
+                    playerAnimationController.PlayAnimation(PlayerAnimationController.CurAnimation.jumpDown_inPlace);
                 }
             }
         }
@@ -460,5 +363,71 @@ public class PlayerMovement : MonoBehaviour
             jumpAnim = false;
         }
     }
+    //*-----------------------------------------------------------------------------------------//
+    public void Falling()
+    {
+        float curDistance = 0;
+        Vector3 originPos = transform.position + (P_value.moveDirection * 0.05f);
+        Debug.DrawLine(originPos, Vector3.down * 100, Color.red);
+        bool cast = Physics.Raycast(originPos, Vector3.down,
+                    out var hit, 100f, P_option.groundLayerMask, QueryTriggerInteraction.Ignore);
+        if (cast)
+        {
+            curDistance = hit.distance;
+            Debug.Log(curDistance);
+        }
 
+        if (curDistance >= 0.1)
+        {
+            bool fallindDown = CheckFallingDown();
+            P_state.isFallig = true;
+            if (!fallindDown)
+            {
+                playerAnimationController.PlayAnimation(PlayerAnimationController.CurAnimation.falling);
+            }
+        }
+
+    }
+
+    public bool CheckFallingDown()
+    {
+
+        float curDistance = 0;
+        Vector3 originPos = transform.position + (P_value.moveDirection * 0.05f);
+        Debug.DrawLine(originPos, Vector3.down * 100, Color.red);
+        bool cast = Physics.Raycast(originPos, Vector3.down,
+                    out var hit, 100f, P_option.groundLayerMask, QueryTriggerInteraction.Ignore);
+        if (cast)
+        {
+            curDistance = hit.distance;
+            Debug.Log(curDistance);
+        }
+
+        if (curDistance <= 1.5f && !jumpAnim)
+        {
+            jumpAnim = true;
+            playerAnimationController.PlayAnimation(PlayerAnimationController.CurAnimation.fallingDown);
+            return true;
+        }
+        return false;
+    }
+
+    private void FallingGroundCheck(bool isResult)
+    {
+        if (P_state.isFallig && !P_state.isGround)
+        {
+            if (isResult)
+            {
+
+                P_com.rigid.velocity = new Vector3(P_com.rigid.velocity.x, 0, P_com.rigid.velocity.z);
+
+                P_state.isFallig = false;
+                P_com.rigid.mass = 1;
+                P_option.gravity = 0f;
+
+            }
+        }
+    }
+
+    //*---------------------------------------------------------------------------------------------//
 }

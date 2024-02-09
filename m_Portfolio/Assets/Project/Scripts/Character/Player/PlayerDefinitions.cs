@@ -72,6 +72,7 @@ public class PlayerCurState
     public bool isJumping;
     public bool isStrafing;         //주목중
     public bool isDodge;            //피하기 (ex. 구르기)
+    public bool isFallig;          // 절벽에서 떨어지는 중인지.
     public bool isGround;           //현재 발이 바닥에 닿아있는지
     public bool isForwardBlocked;   //앞에 장애물이 있는지 여부
     public bool isOnSteepSlop;      //앞에 가파른 경사있음. (true =>> maxSlopAngle보다 더 높은 기울기. 가파름. false =>> 올라갈 수 있는 기울기)

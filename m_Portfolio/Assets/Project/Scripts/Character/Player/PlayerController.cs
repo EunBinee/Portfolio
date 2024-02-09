@@ -7,6 +7,7 @@ using UnityEngine.UIElements;
 public class PlayerController : MonoBehaviour
 {
     public PlayerMovement playerMovement;
+    public PlayerAnimationController playerAnimController;
     public PlayerComponents playerComponents = new PlayerComponents();
     public PlayerInput playerInput = new PlayerInput();
     public PlayerOption playerOption = new PlayerOption();
@@ -20,17 +21,13 @@ public class PlayerController : MonoBehaviour
     private PlayerCurState P_state => playerCurState;
     private PlayerCurValue P_value => playerCurValue;
     private PlayerCamera P_camera => playerCamera;
-    public enum CurAnimation
-    {
-        jumpUp,
-        jumpDown,
-        jumpUp_inPlace,
-        jumpDown_inPlace
-    }
+
 
     void Start()
     {
         Init();
+
+        playerAnimController.AnimInit(this);
 
         playerMovement = GetComponent<PlayerMovement>();
         playerMovement.PlayerMovement_Init();
@@ -56,26 +53,6 @@ public class PlayerController : MonoBehaviour
         P_camera.cameraObj = GameManager.Instance.gameData.cameraObj;
     }
 
-    public void PlayAnimation(CurAnimation curAnimation)
-    {
-        switch (curAnimation)
-        {
-            case CurAnimation.jumpUp:
-                P_com.anim.SetTrigger("isJumpingUp");
-                break;
-            case CurAnimation.jumpDown:
-                P_com.anim.SetTrigger("isJumpingDown");
-                break;
-            case CurAnimation.jumpUp_inPlace:
-                P_com.anim.SetTrigger("isJumpingUp_inPlace");
-                break;
-            case CurAnimation.jumpDown_inPlace:
-                P_com.anim.SetTrigger("isJumpingDown_inPlace");
-                break;
-            default:
-                break;
-        }
-    }
     void Update()
     {
 
