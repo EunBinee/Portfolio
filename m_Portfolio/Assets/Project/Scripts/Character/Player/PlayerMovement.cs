@@ -54,7 +54,10 @@ public class PlayerMovement : MonoBehaviour
     {
         playerAnimationController.PlayerMovement_Animation();             //* 움직임 애니메이션
         playerMovementInput.HandleInputs();     //* 움직임 INPUT
-                                                // HandleAllPlayerLocomotion();            //* 움직임 구현
+        if (Input.GetKey(KeyCode.L))
+        {
+            playerAnimationController.PlayAnimation(PlayerAnimationController.CurAnimation.drawSword);
+        }
 
     }
     void FixedUpdate()

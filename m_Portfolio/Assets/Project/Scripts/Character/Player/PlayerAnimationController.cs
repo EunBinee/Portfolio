@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Unity.Collections.LowLevel.Unsafe;
 
-[Serializable]
-public class PlayerAnimationController
+public class PlayerAnimationController : MonoBehaviour
 {
 
     public PlayerController playerController;
@@ -16,6 +16,7 @@ public class PlayerAnimationController
     private PlayerCurValue P_value;
     private PlayerCamera P_camera;
 
+    float upperBodyLayerWeight = 0f;
     public enum CurAnimation
     {
         jumpUp,
@@ -23,7 +24,9 @@ public class PlayerAnimationController
         jumpUp_inPlace,
         jumpDown_inPlace,
         falling,
-        fallingDown
+        fallingDown,
+        drawSword
+
     }
 
     public void AnimInit(PlayerController _playerController)
@@ -59,6 +62,9 @@ public class PlayerAnimationController
                 break;
             case CurAnimation.fallingDown:
                 P_com.anim.SetTrigger("isFallingDown");
+                break;
+            case CurAnimation.drawSword:
+                StartCoroutine(DrawSword_co());
                 break;
             default:
                 break;
@@ -170,6 +176,33 @@ public class PlayerAnimationController
     }
 
     //*----------------------------------------------------------------------------------------------------------------------------------//
+    //* 총 뽑기
+    IEnumerator DrawSword_co()
+    {
+        upperBodyLayerWeight = 1;
+        P_com.anim.SetLayerWeight(1, upperBodyLayerWeight);
+        P_com.anim.SetBool("isDrawSword", true);
+        while (true)
+        {
+            if (P_com.anim.GetCurrentAnimatorStateInfo(1).IsName("Gun_equip") && P_com.anim.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.7f)
+            {
+                if (upperBodyLayerWeight >= 0)
+                {
+                    upperBodyLayerWeight -= Time.deltaTime;
+                }
+                else
+                {
+                    break;
+                }
+                P_com.anim.SetLayerWeight(1, upperBodyLayerWeight);
+            }
+            yield return null;
+        }
+        P_com.anim.SetBool("isEquipGun", false);
+        P_com.anim.SetLayerWeight(1, 0);
+        yield return null;
+    }
+    //* 검 넣기
 
-
+    //*----------------------------------------------------------------------------------------------------------------------------------//
 }

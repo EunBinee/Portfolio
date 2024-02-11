@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour
     {
         Init();
 
+        playerAnimController = GetComponent<PlayerAnimationController>();
         playerAnimController.AnimInit(this);
 
         playerMovement = GetComponent<PlayerMovement>();
