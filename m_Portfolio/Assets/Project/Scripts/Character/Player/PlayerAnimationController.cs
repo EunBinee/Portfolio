@@ -181,7 +181,7 @@ public class PlayerAnimationController : MonoBehaviour
     {
         upperBodyLayerWeight = 1;
         P_com.anim.SetLayerWeight(1, upperBodyLayerWeight);
-        P_com.anim.SetBool("isDrawSword", true);
+        P_com.anim.SetBool("isEquipGun", true);
         while (true)
         {
             if (P_com.anim.GetCurrentAnimatorStateInfo(1).IsName("Gun_equip") && P_com.anim.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.7f)
