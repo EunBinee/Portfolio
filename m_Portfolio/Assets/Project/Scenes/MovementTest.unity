@@ -450,6 +450,11 @@ Transform:
   m_Father: {fileID: 1625882873608235569}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &630884202 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6574538857821969852, guid: 24be565d03ceff6498c4d89447219b2f, type: 3}
+  m_PrefabInstance: {fileID: 1339422258}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &701451817
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -515,7 +520,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6574538857821969852, guid: 24be565d03ceff6498c4d89447219b2f, type: 3}
       propertyPath: m_Name
-      value: BigSword
+      value: GreatSword_unused
       objectReference: {fileID: 0}
     - target: {fileID: 6574538857821969852, guid: 24be565d03ceff6498c4d89447219b2f, type: 3}
       propertyPath: m_IsActive
@@ -680,6 +685,11 @@ Transform:
   m_Father: {fileID: 2073803382}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1312685840 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6574538857821969852, guid: 24be565d03ceff6498c4d89447219b2f, type: 3}
+  m_PrefabInstance: {fileID: 701451817}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1339422258
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -733,7 +743,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6574538857821969852, guid: 24be565d03ceff6498c4d89447219b2f, type: 3}
       propertyPath: m_Name
-      value: BigSword
+      value: GreatSword_used
       objectReference: {fileID: 0}
     - target: {fileID: 6574538857821969852, guid: 24be565d03ceff6498c4d89447219b2f, type: 3}
       propertyPath: m_IsActive
@@ -2921,6 +2931,7 @@ GameObject:
   - component: {fileID: 4643324531865464907}
   - component: {fileID: 7988535674928182252}
   - component: {fileID: 7988535674928182253}
+  - component: {fileID: 7988535674928182255}
   - component: {fileID: 7988535674928182254}
   m_Layer: 6
   m_Name: Player
@@ -7416,12 +7427,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerMovement: {fileID: 0}
+  playerAttack: {fileID: 0}
+  playerInput:
+    playerController: {fileID: 0}
+    playerAttack: {fileID: 0}
+    playerMovement: {fileID: 0}
   playerAnimController: {fileID: 0}
+  playerWeapon_Info:
+    p_Chest: {fileID: 1488504202510575783}
+    curPlayerWeapon: 0
+    curWeaponState: 0
+    greatSwordPos_unused: {fileID: 1746612844}
+    greatSword_unused: {fileID: 1312685840}
+    greatSword_used: {fileID: 630884202}
   playerComponents:
     rigid: {fileID: 0}
     anim: {fileID: 0}
     capsuleCollider: {fileID: 0}
-  playerInput:
+  playerInput_Info:
     verticalMovement: 0
     horizontalMovement: 0
     mouseY: 0
@@ -7483,9 +7506,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerController: {fileID: 0}
   playerAnimationController: {fileID: 0}
-  playerMovementInput:
-    playerController: {fileID: 0}
-    playerMovement: {fileID: 0}
 --- !u!114 &7988535674928182254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7499,6 +7519,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerController: {fileID: 0}
+--- !u!114 &7988535674928182255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2151484184240009355}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf9abea1f30d7434e934ec862c791008, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerInput:
+    playerController: {fileID: 0}
+    playerAttack: {fileID: 0}
+    playerMovement: {fileID: 0}
 --- !u!114 &8007161002090970737
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -13,7 +13,7 @@ public class PlayerComponents
     public CapsuleCollider capsuleCollider;
 }
 [Serializable]
-public class PlayerInput
+public class PlayerInputInfo
 {
     //* 플레이어 Input
     public float verticalMovement;   //상하

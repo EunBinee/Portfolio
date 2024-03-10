@@ -4,35 +4,39 @@ using UnityEngine;
 using System;
 
 [Serializable]
-public class PlayerMovementInput
+public class PlayerInput
 {
     //! 플레이어의 움직임 Input만을 받는 곳입니다.
     public PlayerController playerController;
+    public PlayerAttack playerAttack;
     public PlayerMovement playerMovement;
     private PlayerComponents P_com;
-    private PlayerInput P_input;
+    private PlayerInputInfo P_input;
     private PlayerOption P_option;
     private PlayerCurState P_state;
     private PlayerCurValue P_value;
     private PlayerCamera P_camera;
 
-    public void PlayerMovementInput_Init(PlayerController _playerController, PlayerMovement _playerMovement)
+    public void PlayerInit(PlayerController _playerController)
     {
         playerController = _playerController;
-        playerMovement = _playerMovement;
+        playerMovement = playerController.playerMovement;
+        playerAttack = playerController.playerAttack;
+        playerAttack.playerInput = this;
+
         GetPlayerController();
     }
     public void GetPlayerController()
     {
         P_com = playerController.playerComponents;
-        P_input = playerController.playerInput;
+        P_input = playerController.playerInput_Info;
         P_option = playerController.playerOption;
         P_state = playerController.playerCurState;
         P_value = playerController.playerCurValue;
         P_camera = playerController.playerCamera;
     }
 
-    public void HandleInputs()
+    public void HandleMovementInputs()
     {
         P_input.mouseX = Input.GetAxis("Mouse X");
         P_input.mouseY = Input.GetAxis("Mouse Y");
@@ -69,6 +73,18 @@ public class PlayerMovementInput
 
         P_value.moveAmount = Mathf.Clamp01(Mathf.Abs(P_input.horizontalMovement) + Mathf.Abs(P_input.verticalMovement));
     }
+
+    public void HandleMovementStop()
+    {
+        P_input.mouseX = Input.GetAxis("Mouse X");
+        P_input.mouseY = Input.GetAxis("Mouse Y");
+
+        P_input.verticalMovement = 0;
+        P_input.horizontalMovement = 0;
+
+        P_value.moveAmount = Mathf.Clamp01(Mathf.Abs(P_input.horizontalMovement) + Mathf.Abs(P_input.verticalMovement));
+    }
+
 
     //* 플레이어 상태 체크 (Input)---------------------------------------------------------------------------------------------------//
     //* - 전력질주
@@ -148,5 +164,23 @@ public class PlayerMovementInput
             }
         }
     }
+
+    //*--------------------------------------------------------------------------------------------------------------------------------//
+    public void HandlePlayerAttackInput()
+    {
+        HandleBasicAttack(); //* 기본 공격 체크
+
+
+    }
+    private void HandleBasicAttack()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            //* 좌클릭 눌렀을 때, 기본 콤보 공격
+            playerAttack.BasicAttack_Combo();
+        }
+    }
+
+
 }
 

@@ -11,9 +11,8 @@ public class PlayerMovement : MonoBehaviour
     //! 플레이어의 움직임을 구현하는 스크립트입니다.
     public PlayerController playerController;
     public PlayerAnimationController playerAnimationController;
-    public PlayerMovementInput playerMovementInput; //플레이어 움직임 관련 Input
     private PlayerComponents P_com;
-    private PlayerInput P_input;
+    private PlayerInputInfo P_input_Info;
     private PlayerOption P_option;
     private PlayerCurState P_state;
     private PlayerCurValue P_value;
@@ -31,8 +30,6 @@ public class PlayerMovement : MonoBehaviour
     {
         //* PlayerController.cs의 Start에서 Init
         PlayerControllerValue();
-        playerMovementInput = new PlayerMovementInput();
-        playerMovementInput.PlayerMovementInput_Init(playerController, this);
 
         P_value.castRadius = P_com.capsuleCollider.radius * 0.9f;
         playerAnimationController = playerController.playerAnimController;
@@ -43,7 +40,7 @@ public class PlayerMovement : MonoBehaviour
         //* 플레이어 컨트롤러 관련 값 할당
         playerController = GetComponent<PlayerController>();
         P_com = playerController.playerComponents;
-        P_input = playerController.playerInput;
+        P_input_Info = playerController.playerInput_Info;
         P_option = playerController.playerOption;
         P_state = playerController.playerCurState;
         P_value = playerController.playerCurValue;
@@ -52,20 +49,33 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        playerAnimationController.PlayerMovement_Animation();             //* 움직임 애니메이션
-        playerMovementInput.HandleInputs();     //* 움직임 INPUT
+        playerAnimationController.PlayerMovement_Animation();        //움직임 애니메이션
+
+        if (!playerController.playerAttack.startComboAttack)
+        {
+            playerController.playerInput.HandleMovementInputs();     // 움직임 INPUT}
+        }
+        else if (playerController.playerAttack.startComboAttack)
+        {
+            BasicComboAttack();
+        }
+
         if (Input.GetKey(KeyCode.L))
         {
             playerAnimationController.PlayAnimation(PlayerAnimationController.CurAnimation.drawSword);
         }
 
     }
+
     void FixedUpdate()
     {
-        HandleAllPlayerLocomotion();            //* 움직임 구현
+        if (!playerController.playerAttack.startComboAttack)
+            HandleAllPlayerLocomotion();            //* 움직임 구현
+
     }
 
     //* 플레이어 움직임---------------------------------------------------------------------------------------------------------------//
+    #region 플레이어 움직임
     private void HandleAllPlayerLocomotion()
     {
         Update_Physics();
@@ -119,7 +129,7 @@ public class PlayerMovement : MonoBehaviour
         {
             P_value.groundNormal = hit.normal; //현재 지면의 노멀값
             P_value.groundSlopeAngle = Vector3.Angle(P_value.groundNormal, Vector3.up); // 현재 지면의 경사각(기울기)
-            //P_value.forwardSlopeAngle = Vector3.Angle(P_value.groundNormal, P_value.moveDirection) - 90f;  //캐릭터가 바라보는 방향의 경사각
+                                                                                        //P_value.forwardSlopeAngle = Vector3.Angle(P_value.groundNormal, P_value.moveDirection) - 90f;  //캐릭터가 바라보는 방향의 경사각
 
             // 상태값 조정 //가파른 경사 있는지 체크
             P_state.isOnSteepSlop = P_value.groundSlopeAngle >= P_option.maxSlopAngle;
@@ -195,8 +205,8 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             Vector3 rotationDirection = Vector3.zero;
-            rotationDirection = P_camera.cameraObj.transform.forward * P_input.verticalMovement;
-            rotationDirection = rotationDirection + P_camera.cameraObj.transform.right * P_input.horizontalMovement;
+            rotationDirection = P_camera.cameraObj.transform.forward * P_input_Info.verticalMovement;
+            rotationDirection = rotationDirection + P_camera.cameraObj.transform.right * P_input_Info.horizontalMovement;
             rotationDirection.Normalize();
             rotationDirection.y = 0;
             if (rotationDirection == Vector3.zero)
@@ -220,8 +230,8 @@ public class PlayerMovement : MonoBehaviour
             return;
 
         //* 카메라 기준의 움직임
-        P_value.moveDirection = P_camera.cameraObj.transform.forward * P_input.verticalMovement;
-        P_value.moveDirection = P_value.moveDirection + P_camera.cameraObj.transform.right * P_input.horizontalMovement;
+        P_value.moveDirection = P_camera.cameraObj.transform.forward * P_input_Info.verticalMovement;
+        P_value.moveDirection = P_value.moveDirection + P_camera.cameraObj.transform.right * P_input_Info.horizontalMovement;
         P_value.moveDirection.Normalize();
 
         if ((P_state.isSprinting || P_state.isRunning) || P_state.isWalking)
@@ -284,8 +294,6 @@ public class PlayerMovement : MonoBehaviour
     public bool CheckJumpAnimationEnd()
     {
         AnimatorStateInfo stateInfo = P_com.anim.GetCurrentAnimatorStateInfo(0);
-
-        Debug.Log("Jump Check");
 
         if (stateInfo.IsName("Jump_up") && stateInfo.normalizedTime >= 1f)
         {
@@ -366,6 +374,9 @@ public class PlayerMovement : MonoBehaviour
             jumpAnim = false;
         }
     }
+
+
+
     //*-----------------------------------------------------------------------------------------//
     public void Falling()
     {
@@ -377,7 +388,6 @@ public class PlayerMovement : MonoBehaviour
         if (cast)
         {
             curDistance = hit.distance;
-            Debug.Log(curDistance);
         }
 
         if (curDistance >= 0.1)
@@ -403,7 +413,6 @@ public class PlayerMovement : MonoBehaviour
         if (cast)
         {
             curDistance = hit.distance;
-            Debug.Log(curDistance);
         }
 
         if (curDistance <= 1.5f && !jumpAnim)
@@ -432,5 +441,18 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    //*---------------------------------------------------------------------------------------------//
+    #endregion
+    //*-----------------------------------------------------------------------------------------//
+    #region 플레이어 공격할때 움직임.
+
+    public void BasicComboAttack()
+    {
+        playerController.playerInput.HandleMovementStop(); //Input정지
+        P_com.rigid.velocity = Vector3.zero; //속력 정지
+
+    }
+
+    //* 넉백당하는 몬스터 만큼 움직여서 공격.
+
+    #endregion
 }

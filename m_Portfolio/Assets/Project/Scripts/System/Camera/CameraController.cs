@@ -176,8 +176,8 @@ public class CameraController : MonoBehaviour
         //마우스 방향에 따른 카메라 방향
         Vector3 cameraRot;
         Quaternion targetCameraRot;
-        left_right_LookAngle += (playerController.playerInput.mouseX * left_right_LookSpeed) * Time.deltaTime;
-        up_down_LookAngle -= (playerController.playerInput.mouseY * up_down_LookSpeed) * Time.deltaTime;
+        left_right_LookAngle += (playerController.playerInput_Info.mouseX * left_right_LookSpeed) * Time.deltaTime;
+        up_down_LookAngle -= (playerController.playerInput_Info.mouseY * up_down_LookSpeed) * Time.deltaTime;
 
         up_down_LookAngle = Mathf.Clamp(up_down_LookAngle, minPivot, maxPivot); //위아래 고정
 

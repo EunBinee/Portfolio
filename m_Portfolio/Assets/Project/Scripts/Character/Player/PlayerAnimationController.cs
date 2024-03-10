@@ -10,7 +10,7 @@ public class PlayerAnimationController : MonoBehaviour
     public PlayerController playerController;
 
     private PlayerComponents P_com;
-    private PlayerInput P_input;
+    private PlayerInputInfo P_inputInfo;
     private PlayerOption P_option;
     private PlayerCurState P_state;
     private PlayerCurValue P_value;
@@ -34,7 +34,7 @@ public class PlayerAnimationController : MonoBehaviour
         //* 플레이어 컨트롤러 관련 값 할당
         playerController = _playerController;
         P_com = playerController.playerComponents;
-        P_input = playerController.playerInput;
+        P_inputInfo = playerController.playerInput_Info;
         P_option = playerController.playerOption;
         P_state = playerController.playerCurState;
         P_value = playerController.playerCurValue;
@@ -78,22 +78,22 @@ public class PlayerAnimationController : MonoBehaviour
         float vertical = 0;
 
         #region  Horizontal
-        if (P_input.horizontalMovement > 0 && P_input.horizontalMovement <= 0.5f)
+        if (P_inputInfo.horizontalMovement > 0 && P_inputInfo.horizontalMovement <= 0.5f)
         {
             //0보다 큰데 0.5보다 같거나 작은 경우
             horizontal = 0.5f;
         }
-        else if (P_input.horizontalMovement > 0.5f)
+        else if (P_inputInfo.horizontalMovement > 0.5f)
         {
             //0.5보다 큰경우
             horizontal = 1;
         }
-        else if (P_input.horizontalMovement < 0 && P_input.horizontalMovement >= -0.5f)
+        else if (P_inputInfo.horizontalMovement < 0 && P_inputInfo.horizontalMovement >= -0.5f)
         {
             //0보다 작은데 -0.5보다 같거나 큰 경우
             horizontal = -0.5f;
         }
-        else if (P_input.horizontalMovement < -0.5f)
+        else if (P_inputInfo.horizontalMovement < -0.5f)
         {
             //-0.5보다 작은 경우
             horizontal = -1;
@@ -106,22 +106,22 @@ public class PlayerAnimationController : MonoBehaviour
         #endregion
 
         #region Vertical
-        if (P_input.verticalMovement > 0 && P_input.verticalMovement <= 0.5f)
+        if (P_inputInfo.verticalMovement > 0 && P_inputInfo.verticalMovement <= 0.5f)
         {
             //0보다 큰데 0.5보다 같거나 작은 경우
             vertical = 0.5f;
         }
-        else if (P_input.verticalMovement > 0.5f)
+        else if (P_inputInfo.verticalMovement > 0.5f)
         {
             //0.5보다 큰경우
             vertical = 1;
         }
-        else if (P_input.verticalMovement < 0 && P_input.verticalMovement >= -0.5f)
+        else if (P_inputInfo.verticalMovement < 0 && P_inputInfo.verticalMovement >= -0.5f)
         {
             //0보다 작은데 -0.5보다 같거나 큰 경우
             vertical = -0.5f;
         }
-        else if (P_input.verticalMovement < -0.5f)
+        else if (P_inputInfo.verticalMovement < -0.5f)
         {
             //-0.5보다 작은 경우
             vertical = -1;
