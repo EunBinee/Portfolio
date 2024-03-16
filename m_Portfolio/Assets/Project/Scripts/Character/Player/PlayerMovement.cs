@@ -251,8 +251,8 @@ public class PlayerMovement : MonoBehaviour
                 P_value.moveDirection = P_value.moveDirection * P_option.walkSpeed;
             }
 
-            Vector3 p_velocity = Vector3.ProjectOnPlane(P_value.moveDirection, P_value.groundNormal);
-            p_velocity = p_velocity + Vector3.up * P_option.gravity;
+            Vector3 targetDirection = Vector3.ProjectOnPlane(P_value.moveDirection, P_value.groundNormal);
+            Vector3 p_velocity = targetDirection + Vector3.up * P_option.gravity;
             P_com.rigid.velocity = p_velocity;
         }
         else
@@ -450,9 +450,31 @@ public class PlayerMovement : MonoBehaviour
         playerController.playerInput.HandleMovementStop(); //Input정지
         P_com.rigid.velocity = Vector3.zero; //속력 정지
 
+        ComboAttack_Movement();
     }
 
     //* 넉백당하는 몬스터 만큼 움직여서 공격.
+
+    public void ComboAttack_Movement()
+    {
+        //플레이어에서 몬스터까지 가는 방향 벡터
+        Transform curMonsterTrans = playerController.playerAttack.curTargetMonster.gameObject.transform;
+        Vector3 moveDirection = curMonsterTrans.position - transform.position;
+        moveDirection = moveDirection.normalized;
+        //바닥과 방향벡터 투영
+        Vector3 targetDirection = Vector3.ProjectOnPlane(moveDirection, P_value.groundNormal);
+
+        float distanceToTarget = Vector3.Distance(transform.position, curMonsterTrans.position);
+
+        if (distanceToTarget > 1f)
+        {
+            // 이동 벡터 계산
+            Vector3 movement = moveDirection * 15f * Time.deltaTime;
+            // 이동
+            transform.Translate(movement);
+        }
+
+    }
 
     #endregion
 }
