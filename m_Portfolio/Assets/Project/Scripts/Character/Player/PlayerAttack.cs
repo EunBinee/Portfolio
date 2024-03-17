@@ -12,6 +12,7 @@ public class PlayerAttack : MonoBehaviour
     public PlayerInput playerInput;
     Animator p_anim;
 
+    float attackRange = 3.5f; // 공격 범위
     public LayerMask monsterLayer;
     public Monster curTargetMonster;
     List<Monster> nearbyMonsters;
@@ -45,13 +46,12 @@ public class PlayerAttack : MonoBehaviour
                 }
                 else if (stateInfo.IsName("Locomotion") && firstComboAttackCheck)
                 {
-                    Debug.Log("기본 콤보 공격끝");
                     playerController.playerWeapon_Info.ChangeWeaponState(PlayerWeaponInfo.WeaponState.unusedWeapon);
                     startComboAttack = false;
                     firstComboAttackCheck = false;
+
+                    curTargetMonster = null; //콤보 공격의 타겟 몬스터도 null;
                 }
-
-
             }
         }
     }
@@ -61,9 +61,7 @@ public class PlayerAttack : MonoBehaviour
         if (!startComboAttack)
         {
             //첫공격이면? 무기 세팅
-
             playerController.playerWeapon_Info.ChangeWeaponState(PlayerWeaponInfo.WeaponState.useWeapon);
-
             //* Target 몬스터 가지고 오기
             curTargetMonster = GetNearestMonster();
         }
@@ -75,7 +73,7 @@ public class PlayerAttack : MonoBehaviour
     Monster GetNearestMonster()
     {
         Monster nearestMonster = null;
-        float nearDistance = 10000;
+        float nearDistance = 100;
 
         Vector3 curPlayerPos = this.gameObject.transform.position;
 
@@ -106,7 +104,7 @@ public class PlayerAttack : MonoBehaviour
     //* 근처 몬스터 리스트
     void NearbyMonsterList()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 3f, monsterLayer); //반지름 10
+        Collider[] colliders = Physics.OverlapSphere(transform.position, attackRange, monsterLayer); //반지름 10
 
         nearbyMonsters.Clear();
         foreach (Collider col in colliders)

@@ -55,10 +55,7 @@ public class PlayerMovement : MonoBehaviour
         {
             playerController.playerInput.HandleMovementInputs();     // 움직임 INPUT}
         }
-        else if (playerController.playerAttack.startComboAttack)
-        {
-            BasicComboAttack();
-        }
+
 
         if (Input.GetKey(KeyCode.L))
         {
@@ -71,7 +68,10 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!playerController.playerAttack.startComboAttack)
             HandleAllPlayerLocomotion();            //* 움직임 구현
-
+        else if (playerController.playerAttack.startComboAttack)
+        {
+            BasicComboAttack();
+        }
     }
 
     //* 플레이어 움직임---------------------------------------------------------------------------------------------------------------//
@@ -375,8 +375,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-
-
     //*-----------------------------------------------------------------------------------------//
     public void Falling()
     {
@@ -444,36 +442,55 @@ public class PlayerMovement : MonoBehaviour
     #endregion
     //*-----------------------------------------------------------------------------------------//
     #region 플레이어 공격할때 움직임.
-
     public void BasicComboAttack()
     {
+        HandleGroundCheck();            // 바닥체크
+
         playerController.playerInput.HandleMovementStop(); //Input정지
         P_com.rigid.velocity = Vector3.zero; //속력 정지
 
-        ComboAttack_Movement();
+        if (playerController.playerAttack.curTargetMonster != null)
+        {
+            ComboAttack_Movement();
+            // 회전은 Movement 안에서 진행
+        }
     }
 
     //* 넉백당하는 몬스터 만큼 움직여서 공격.
-
     public void ComboAttack_Movement()
     {
         //플레이어에서 몬스터까지 가는 방향 벡터
         Transform curMonsterTrans = playerController.playerAttack.curTargetMonster.gameObject.transform;
         Vector3 moveDirection = curMonsterTrans.position - transform.position;
-        moveDirection = moveDirection.normalized;
+        moveDirection.Normalize();
+
         //바닥과 방향벡터 투영
         Vector3 targetDirection = Vector3.ProjectOnPlane(moveDirection, P_value.groundNormal);
 
         float distanceToTarget = Vector3.Distance(transform.position, curMonsterTrans.position);
 
-        if (distanceToTarget > 1f)
+        if (distanceToTarget > 1.3f)
         {
             // 이동 벡터 계산
-            Vector3 movement = moveDirection * 15f * Time.deltaTime;
+            Vector3 movement = targetDirection * 12f * Time.fixedDeltaTime;
             // 이동
-            transform.Translate(movement);
+            P_com.rigid.MovePosition(transform.position + movement);
         }
 
+        ComboAttack_Rotation(moveDirection);
+    }
+
+    //* 플레이어 회전
+    private void ComboAttack_Rotation(Vector3 rotationDir)
+    {
+        // 몬스터 방향으로 몸을 튼다. 
+        Vector3 rotationDirection = rotationDir;
+        rotationDirection.y = 0;
+
+        rotationDirection.Normalize();
+        Quaternion turnRot = Quaternion.LookRotation(rotationDirection);
+        Quaternion targetRotation = Quaternion.Slerp(transform.rotation, turnRot, P_option.rotSpeed * Time.deltaTime);
+        transform.rotation = targetRotation;
     }
 
     #endregion
