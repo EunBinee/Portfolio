@@ -20,6 +20,9 @@ public class MonsterData
     public string monsterExplanation; //* 보스 몬스터일 경우 필수
     public MonsterType monsterType;
 
+    [Header("몬스터 콤포넌트")]
+    public Rigidbody rigid;
+    public Collider collider;
 
     [Header("몬스터 체력")]
     public Transform HPBarPos;

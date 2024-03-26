@@ -144,11 +144,19 @@ public class CameraController : MonoBehaviour
         else
         {
             CameraRotate();  //마우스 방향에 따른 카메라 방향
-            float camPosZ = WallInFrontOfCamera(minZ, maxZ);
+
+            float camPosZ = 0;
+            //* 벽체크
+            if (!playerController.playerAttack.playerAttack_ing)
+                camPosZ = WallInFrontOfCamera(minZ, maxZ);
+            else
+            {
+                camPosZ = cameraObj.gameObject.transform.localPosition.z;
+            }
             Vector3 targetPos = new Vector3(0, 0, camPosZ);
             if (playerController.playerCurState.isSprinting)
             {
-                cameraObj.gameObject.transform.localPosition = Vector3.Lerp(cameraObj.gameObject.transform.localPosition, targetPos, frontOfTheWall_Speed * 2f * Time.deltaTime);
+                cameraObj.gameObject.transform.localPosition = Vector3.Lerp(cameraObj.gameObject.transform.localPosition, targetPos, frontOfTheWall_Speed * 3f * Time.deltaTime);
             }
             else
                 cameraObj.gameObject.transform.localPosition = Vector3.Lerp(cameraObj.gameObject.transform.localPosition, targetPos, frontOfTheWall_Speed * Time.deltaTime);
@@ -200,10 +208,7 @@ public class CameraController : MonoBehaviour
     //* 카메라 벽체크
     public float WallInFrontOfCamera(float max = -0.9f, float min = -5f)
     {
-        //if (playerController.playerCurState.isStartComboAttack || playerController.playerCurState.isDodgeing)
-        //    return cameraObj.gameObject.transform.localPosition.z;
-
-        int monsterLayerMask = 1 << LayerMask.NameToLayer("Monster"); //몬스터 제외
+        int monsterLayerMask = 1 << 7;//LayerMask.NameToLayer("Monster"); //몬스터 제외
         Vector3 curDirection = cameraObj.gameObject.transform.position - playerHeadPos.position;
         Debug.DrawRay(playerHeadPos.position, curDirection * 20, Color.magenta);
         Ray ray = new Ray(playerHeadPos.position, curDirection);
@@ -211,7 +216,7 @@ public class CameraController : MonoBehaviour
         // Ray와 충돌한 경우
         if (Physics.Raycast(ray, out hit, 20, ~monsterLayerMask)) //몬스터 제외
         {
-            float dist = Vector3.Distance(hit.point, cameraObj.gameObject.transform.position);//  (hit.point - cameraObj.gameObject.transform.position).magnitude;
+            float dist = Vector3.Distance(hit.point, cameraObj.gameObject.transform.position);
 
             bool isbehind = CheckObj_behindCamera(hit.point);
 

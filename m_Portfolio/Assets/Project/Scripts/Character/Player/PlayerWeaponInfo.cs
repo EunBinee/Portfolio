@@ -31,12 +31,15 @@ public class PlayerWeaponInfo
     public Transform greatSwordPos_unused;//사용안하고 보관중인 대검의 부모 POS
     public GameObject greatSword_unused; //사용안하고 보관중인 대검
     public GameObject greatSword_used;   //사용중인 대검
+    PlayerWeapon greatSword_PlayerWeapon; //* 대검의 충돌 체크를 하는 스크립트 
     //----------------------------------------------------------//
 
     public void Init(PlayerController _playerController)
     {
         //처음 플레이어 기본 무기는 대검
         playerController = _playerController;
+        greatSword_PlayerWeapon = greatSword_used.GetComponent<PlayerWeapon>();
+        greatSword_PlayerWeapon.Init();
 
         ChangePlayerWeapon(PlayerWeapons.greatSword);
         ChangeWeaponState(WeaponState.unusedWeapon);
@@ -54,6 +57,7 @@ public class PlayerWeaponInfo
         }
     }
 
+    //* 무기 바꾸기
     public void ChangePlayerWeapon(PlayerWeapons weapon)
     {
         if (curPlayerWeapon != weapon)
@@ -112,6 +116,8 @@ public class PlayerWeaponInfo
         }
     }
 
+
+    //* 사용안하는 무기의 rot 값
     public void unusedW_RotationUpdate()
     {
         Vector3 w_Euler = new Vector3(greatSwordPos_unused.rotation.eulerAngles.x, greatSwordPos_unused.rotation.eulerAngles.y, p_Chest.rotation.eulerAngles.z);
