@@ -13,6 +13,7 @@ public class MonsterPattern : MonoBehaviour
     protected PlayerController playerController;
     protected PlayerMovement playerMovement;
     protected Transform playerTrans;
+    protected Transform playerTargetPos;
     protected int playerLayerId = 6;
     protected int playerlayerMask; //플레이어 캐릭터 레이어 마스크
 
@@ -43,14 +44,14 @@ public class MonsterPattern : MonoBehaviour
         Death,
         Stop // 잠깐 멈추는 상태. ex.연출씬
     }
-    protected MonsterState curMonsterState;
-
+    protected MonsterState curMonsterState; //현재 몬스터 상태
+    protected MonsterState preMonsterState; //이전 몬스터 상태
     public enum MonsterAnimation
     {
         Idle,
         Move,
         Move_Dodge,
-        GetHit,
+        GetDamage,
         Death
     }
 
@@ -62,6 +63,7 @@ public class MonsterPattern : MonoBehaviour
     }
 
     protected float overlapRadius; //플레이어 발견 범위
+    protected float findDistance_BehindPlayer;
     // * --------------------------------------------------------//
     // * 로밍관련 변수들
     protected int roaming_RangeX;
@@ -102,6 +104,7 @@ public class MonsterPattern : MonoBehaviour
         playerController = GameManager.instance.gameData.GetPlayerController();
         playerMovement = GameManager.instance.gameData.GetPlayerMovement();
         playerTrans = GameManager.Instance.gameData.GetPlayerTransform();
+        playerTargetPos = GameManager.Instance.gameData.playertargetPos;
 
         m_monster.monsterPattern = this;
 
@@ -118,6 +121,7 @@ public class MonsterPattern : MonoBehaviour
         originPosition = transform.position;
 
         overlapRadius = m_monster.monsterData.overlapRadius; //플레이어 감지 범위.
+        findDistance_BehindPlayer = m_monster.monsterData.findDistance_BehindPlayer; //뒤에 있는플레이어 감지 범위.
         roaming_RangeX = m_monster.monsterData.roaming_RangeX; //로밍 범위 x;
         roaming_RangeZ = m_monster.monsterData.roaming_RangeZ; //로밍 범위 y;
         CheckRoam_Range();
@@ -185,7 +189,7 @@ public class MonsterPattern : MonoBehaviour
                 break;
             case MonsterAnimation.Move:
                 break;
-            case MonsterAnimation.GetHit:
+            case MonsterAnimation.GetDamage:
                 break;
             case MonsterAnimation.Death:
                 break;
@@ -242,8 +246,12 @@ public class MonsterPattern : MonoBehaviour
 
     protected void ChangeMonsterState(MonsterState monsterState)
     {
+
         if (curMonsterState != MonsterState.Death)
+        {
+            preMonsterState = curMonsterState;
             curMonsterState = monsterState;
+        }
     }
 
     public virtual void Monster_Pattern()
@@ -431,7 +439,9 @@ public class MonsterPattern : MonoBehaviour
     {
         //* 발사체 공격 시, 플레이어의 앞에 물체가 있는지 확인.!
         //*  curOriginPos : 레이를 발사하는 곳 ; targetDir : originPos에서 부터 플레이어로 향하는 방향 벡터
-        //* 리턴 false 플레이어가 가장 앞에 있음. 리턴 true 플레이어 앞에 장애물 있음(플레이어 숨음).
+        //* 리턴 false 플레이어가 가장 앞에 있음. 
+        //* 리턴 true 플레이어 앞에 장애물 있음 ( = 플레이어 숨음).
+
         float range = 100f;
         float playerDistance = 0;
         float shortestDistance = 1000;
@@ -460,6 +470,7 @@ public class MonsterPattern : MonoBehaviour
                 }
             }
         }
+
         if (playerInRay)
         {
             if (shortestDistance >= playerDistance) //* 플레이어 가장 앞에 있음.
@@ -513,19 +524,12 @@ public class MonsterPattern : MonoBehaviour
     }
     //*------------------------------------------------------------------------------------------//
     //* 플레이어를 공격하는 몬스터 리스트 (주목에서 쓰임)
-    /*
+
     public void SetPlayerAttackList(bool attackMonster)
     {
         if (GameManager.instance.cameraController != null)
         {
             PlayerAttackList(attackMonster, GameManager.instance.cameraController);
-        }
-        else if (GameManager.instance.cameraController == null)
-        {
-            GameManager.instance.startActionCam += (cameraObj) =>
-            {
-                PlayerAttackList(attackMonster, cameraObj);
-            };
         }
     }
 
@@ -576,7 +580,7 @@ public class MonsterPattern : MonoBehaviour
 
         }
     }
-    */
+
     //*-----------------------------------------------------------------------------------------//
     public void SetGetDemageMonster(Vector3 pos, Quaternion qua)
     {

@@ -11,6 +11,7 @@ public class GameData
     public GameObject player;
     public Transform playerHeadPos;
     public Transform playerBackPos;
+    public Transform playertargetPos;
 
     public Transform GetPlayerTransform()
     {

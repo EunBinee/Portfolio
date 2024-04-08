@@ -10,7 +10,6 @@ public class PlayerWeapon : MonoBehaviour
 
     public void Init()
     {
-        Debug.Log("Dddd");
         playerController = GameManager.instance.gameData.GetPlayerController();
         playerAttack = playerController.playerAttack;
     }

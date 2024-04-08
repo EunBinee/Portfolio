@@ -15,6 +15,8 @@ public class Monster : MonoBehaviour
 
     public bool resetHP = false;
 
+    private HPBarUI_Info m_HPBar; //몬스터의 hp바
+
     public enum monsterSound
     {
         Death
@@ -32,6 +34,7 @@ public class Monster : MonoBehaviour
     {
 
     }
+
     //*------------------------------------------------------------------------------------------//
     //* 초기화 //
     private void Init()
@@ -72,4 +75,57 @@ public class Monster : MonoBehaviour
 
     }
 
+    //*------------------------------------------------------------------------------------------//
+    //* HP바 //
+    public void GetHPBar() //* hp바 받아와서 사용
+    {
+        if (monsterData.monsterType == MonsterData.MonsterType.BossMonster)
+        {
+            //보스전
+            //m_HPBar = UIManager.instance.hpBarManager.Get_BossHPBar();
+            //m_HPBar.Reset(this, monsterData.MaxHP, true);
+        }
+        else
+        {
+            m_HPBar = UIManager.instance.hpBarManager.Get_HPBar();
+            m_HPBar.Reset(this, monsterData.MaxHP);
+        }
+    }
+
+    public void SetActive_HPBar() //* hp바 안보이게.
+    {
+        if (m_HPBar.gameObject.activeSelf == true)
+            m_HPBar.gameObject.SetActive(false);
+        else
+            m_HPBar.gameObject.SetActive(true);
+    }
+
+    public void RetrunHPBar() //* hp바 반납. 
+    {
+        if (monsterData.monsterType == MonsterData.MonsterType.BossMonster)
+        {
+            //보스전
+            //if (m_HPBar != null)
+            //{
+            //    UIManager.instance.hpBarManager.Return_BossHPBar();
+            //    m_HPBar = null;
+            //}
+        }
+        else
+        {
+            if (m_HPBar != null)
+            {
+                UIManager.instance.hpBarManager.Add_HPBarPool(m_HPBar);
+                m_HPBar = null;
+            }
+        }
+    }
+
+
+    public bool HPBar_CheckNull() //*hp바 없으면 false , 있으면 true
+    {
+        if (m_HPBar != null)
+            return true;
+        return false;
+    }
 }

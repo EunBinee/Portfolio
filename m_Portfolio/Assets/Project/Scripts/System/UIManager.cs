@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
+    public static UIManager instance = null;
+
+    public HPBarManager hpBarManager;
+
+
     private void Awake()
     {
         Init();
@@ -11,6 +16,13 @@ public class UIManager : MonoBehaviour
 
     void Init()
     {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        hpBarManager = GetComponent<HPBarManager>();
+        
+
         CursorVisible(false);
     }
 
