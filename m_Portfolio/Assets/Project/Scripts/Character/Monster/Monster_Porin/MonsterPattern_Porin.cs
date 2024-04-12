@@ -358,7 +358,7 @@ public class MonsterPattern_Porin : MonsterPattern
         }
         //움직임.
 
-
+        //* 플레이어 쫓아감.
         navMeshAgent.SetDestination(playerTrans.position);
         SetAnimation(MonsterAnimation.Move);
 

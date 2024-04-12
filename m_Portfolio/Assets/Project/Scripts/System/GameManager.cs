@@ -19,6 +19,8 @@ public class GameManager : MonoBehaviour
     public GameData gameData;
     public CameraController cameraController;
 
+    public List<Monster> monsterUnderAttackList; //플레이어를 공격중인 몬스터
+
     private void Awake()
     {
         Init();
@@ -41,7 +43,9 @@ public class GameManager : MonoBehaviour
             Destroy(this.gameObject);
 
         cameraController = gameData.GetCameraController();
+        monsterUnderAttackList = new List<Monster>();
     }
+
     void Update()
     {
 

@@ -543,39 +543,13 @@ public class MonsterPattern : MonoBehaviour
             if (!GameManager.instance.monsterUnderAttackList.Contains(m_monster))
             {
                 GameManager.instance.monsterUnderAttackList.Add(m_monster);
-
-                if (!cameraObj.isBeingAttention)
-                {
-                    //만약에 아무것도 주목이 안되어잇는상태면?
-                    //주목
-
-                    //cameraObj.AttentionMonster();
-                }
             }
-
         }
         else
         {
             if (GameManager.instance.monsterUnderAttackList.Contains(m_monster))
             {
                 GameManager.instance.monsterUnderAttackList.Remove(m_monster);
-
-                if (cameraObj.isBeingAttention) //* 주목 되어있다면?
-                {
-                    if (GameManager.instance.monsterUnderAttackList.Count > 0)
-                    {
-                        // 만약 공격중인 몬스터가 남아있다면? 다른 몬스터로 수정
-                        cameraObj.ChangeAttentionMonster();
-                    }
-                    else
-                    {
-                        if (cameraObj.curTargetMonster == this.m_monster)
-                        {
-                            // 주목 되어있는 몬스터면 주목 풀기.
-                            cameraObj.UndoAttention();
-                        }
-                    }
-                }
             }
 
         }
