@@ -8,16 +8,23 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: P05_Hair_Metal
-  m_Shader: {fileID: 4800000, guid: be891319084e9d147b09d89e80ce60e0, type: 3}
+  m_Shader: {fileID: 4800000, guid: b4c58e4c77437344c9597cef480cf15f, type: 3}
   m_ValidKeywords:
   - _EMISSIVE_SIMPLE
+  - _IS_ANGELRING_OFF
+  - _IS_TRANSCLIPPING_OFF
   - _OUTLINE_NML
-  m_InvalidKeywords: []
+  - _SHADINGGRADEMAP
+  m_InvalidKeywords:
+  - _
+  - _MatCap
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap: {}
+  stringTagMap:
+    IgnoreProjection: False
+    RenderType: Opaque
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -407,7 +414,7 @@ Material:
     - _SpecularHighlights: 1
     - _SpecularOcclusionMode: 1
     - _SrcBlend: 1
-    - _StencilComp: 8
+    - _StencilComp: 0
     - _StencilMode: 0
     - _StencilNo: 1
     - _StencilOpFail: 0
@@ -471,8 +478,8 @@ Material:
     - _utsTechnique: 1
     - _utsVersion: 2.075
     - _utsVersionX: 0
-    - _utsVersionY: 8
-    - _utsVersionZ: 5
+    - _utsVersionY: 5
+    - _utsVersionZ: 0
     m_Colors:
     - _1st_ShadeColor: {r: 0.3773585, g: 0.3773585, b: 0.3773585, a: 1}
     - _2nd_ShadeColor: {r: 0.13207549, g: 0.13207549, b: 0.13207549, a: 1}
