@@ -51,7 +51,7 @@ public class PlayerMovement : MonoBehaviour
     {
         playerAnimationController.PlayerMovement_Animation();        //움직임 애니메이션
 
-        if (!playerController.playerAttack.startComboAttack)
+        if (!playerController.playerAttack.startComboBasicAttack)
         {
             playerController.playerInput.HandleMovementInputs();     // 움직임 INPUT}
         }
@@ -66,9 +66,9 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!playerController.playerAttack.startComboAttack)
+        if (!playerController.playerAttack.startComboBasicAttack)
             HandleAllPlayerLocomotion();            //* 움직임 구현
-        else if (playerController.playerAttack.startComboAttack)
+        else if (playerController.playerAttack.startComboBasicAttack)
         {
             BasicComboAttack();
         }

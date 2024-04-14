@@ -15,6 +15,7 @@ public class PlayerWeaponInfo
     public Transform p_Chest;
     public enum PlayerWeapons
     {
+        None,
         greatSword //대검
     }
     public PlayerWeapons curPlayerWeapon; //현재 플레이어 무기
@@ -54,6 +55,19 @@ public class PlayerWeaponInfo
         {
             //* 눈에 보이도록 무기를 보관중//
             unusedW_RotationUpdate();
+        }
+    }
+    //* 현재 무기의 playerWeapon.cs가져오기
+    public PlayerWeapon GetCurPlayerWeapon()
+    {
+        switch (curPlayerWeapon)
+        {
+            case PlayerWeapons.None:
+                return null;
+            case PlayerWeapons.greatSword:
+                return greatSword_PlayerWeapon;
+            default:
+                return null;
         }
     }
 

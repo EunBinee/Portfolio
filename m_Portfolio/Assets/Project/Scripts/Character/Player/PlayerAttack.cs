@@ -12,15 +12,20 @@ public class PlayerAttack : MonoBehaviour
     PlayerWeaponInfo playerWeaponInfo;
     public PlayerInput playerInput;
     Animator p_anim;
+    public int curAnimHash = 0;
 
     float attackRange = 5f; // 공격 범위
-    public LayerMask monsterLayer;
+    LayerMask monsterLayer;
     public Monster curTargetMonster;
     List<Monster> nearbyMonsters;
 
     public bool playerAttack_ing = false; //* 전체적인 공격 체크 ( 콤보, 스킬 상관없이 플레이어가 공격중인지 체크 )
-    public bool startComboAttack = false; //기본 콤보공격 체크
-    bool firstComboAttackCheck = false; // 기본 콤보공격 첫타 체크
+
+    //* 기본 콤보 공격 변수---------------------------------------------------------//
+    public bool startComboBasicAttack = false; //기본 콤보공격 체크
+    bool firstComboBasicAttackCheck = false; // 기본 콤보공격 첫타 체크
+
+    //------------------------------------------------------------------------------//
 
 
     public void PlayerAttackInit(PlayerController _playerController)
@@ -30,50 +35,74 @@ public class PlayerAttack : MonoBehaviour
         playerWeaponInfo = playerController.playerWeapon_Info;
         p_anim = playerController.playerComponents.anim;
         nearbyMonsters = new List<Monster>();
+        monsterLayer = GameManager.instance.gameData.monsterLayer;
     }
 
     void Update()
     {
         playerInput.HandlePlayerAttackInput();
 
-        if (startComboAttack)
+        //* 기본 콤보 공격
+        if (startComboBasicAttack)
         {
-            //* 지금 기본 콤보 공격중이라면? => 공격이 끝났는지 체크
-            if (p_anim != null)
-            {
-                AnimatorStateInfo stateInfo = p_anim.GetCurrentAnimatorStateInfo(0);
-
-                if (!stateInfo.IsName("Locomotion") && !firstComboAttackCheck)
-                {
-                    playerAttack_ing = true;
-                    firstComboAttackCheck = true;
-                }
-                else if (stateInfo.IsName("Locomotion") && firstComboAttackCheck)
-                {
-                    playerWeaponInfo.ChangeWeaponState(PlayerWeaponInfo.WeaponState.unusedWeapon);
-                    playerAttack_ing = false;
-                    startComboAttack = false;
-
-                    firstComboAttackCheck = false;
-
-                    curTargetMonster = null; //콤보 공격의 타겟 몬스터도 null;
-                }
-            }
+            UpdateBasicAttack();
         }
     }
 
+    #region 기본 콤보 공격
     public void BasicAttack_Combo()
     {
-        if (!startComboAttack)
+        if (!startComboBasicAttack)
         {
             //첫공격이면? 무기 세팅
             playerWeaponInfo.ChangeWeaponState(PlayerWeaponInfo.WeaponState.useWeapon);
             //* Target 몬스터 가지고 오기
             curTargetMonster = GetNearestMonster();
         }
-        startComboAttack = true;
+        startComboBasicAttack = true;
         p_anim.SetTrigger("Weapon_ComboAttack");
     }
+
+    public void UpdateBasicAttack()
+    {
+        //* 지금 기본 콤보 공격중이라면? => 공격이 끝났는지 체크
+        if (p_anim != null)
+        {
+            AnimatorStateInfo stateInfo = p_anim.GetCurrentAnimatorStateInfo(0);
+            if (curAnimHash != stateInfo.shortNameHash)
+            {
+                //* 새로운 콤보 공격 시작.
+                curAnimHash = stateInfo.shortNameHash;
+                if (firstComboBasicAttackCheck)
+                {
+                    PlayerWeapon playerWeapon = playerWeaponInfo.GetCurPlayerWeapon();
+                    playerWeapon.ResetAttackMonsterList();
+                }
+            }
+            if (!stateInfo.IsName("Locomotion") && !firstComboBasicAttackCheck)
+            {
+                playerAttack_ing = true;
+                firstComboBasicAttackCheck = true;
+            }
+            else if (stateInfo.IsName("Locomotion") && firstComboBasicAttackCheck)
+            {
+                //* 모든 공격이 끝났을때.
+                playerWeaponInfo.ChangeWeaponState(PlayerWeaponInfo.WeaponState.unusedWeapon);
+                playerAttack_ing = false;
+                startComboBasicAttack = false;
+
+                firstComboBasicAttackCheck = false;
+
+                curTargetMonster = null; //콤보 공격의 타겟 몬스터도 null;
+                curAnimHash = 0;
+
+                PlayerWeapon playerWeapon = playerWeaponInfo.GetCurPlayerWeapon();
+                playerWeapon.ResetAttackMonsterList();
+            }
+        }
+    }
+
+    #endregion
 
     //* 근처에 있는 몬스터중 가장 가까운 몬스터
     Monster GetNearestMonster()

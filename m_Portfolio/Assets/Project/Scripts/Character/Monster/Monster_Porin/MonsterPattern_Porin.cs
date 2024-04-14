@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -12,6 +13,14 @@ public class MonsterPattern_Porin : MonsterPattern
     Coroutine roamMonster_co = null;
     Coroutine discoveryMonster_co = null;
 
+    //*몬스터 공격 코루틴
+    Coroutine monsterShortRangeAttack_co = null;
+
+    //*-----------------------------------------//
+    float attackDistance = 1.5f; //* 플레이어와 n만큼 가까워지면 공격
+    float goingBackDistance = 10f; //* 플레이어를 쫓는 사이 플레이어와 거리가 n만큼 벌어지면 자기자리로 돌아가기
+    //*----------------------------------------//
+    Effect curEffect = null; //현재 사용중인 Effect;
     public override void Init()
     {
         m_monster = GetComponent<Monster>();
@@ -35,8 +44,8 @@ public class MonsterPattern_Porin : MonsterPattern
         playerlayerMask = 1 << playerLayerId; //플레이어 레이어
 
         //* 처음 상태는 Roaming
-        ChangeMonsterState(MonsterState.Roaming);
-        SetAnimation(MonsterAnimation.Idle);
+        //ChangeMonsterState(MonsterState.Roaming);
+        SetAnimation(MonsterAnimation.Move);
         originPosition = transform.position;
 
         overlapRadius = m_monster.monsterData.overlapRadius; //플레이어 감지 범위.
@@ -60,6 +69,12 @@ public class MonsterPattern_Porin : MonsterPattern
     {
         base.useUpdate();
         PorinGroudCheck(); //* 현재 바닥에 닿아있는지 체크.
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            GetHit();
+        }
+
     }
     //*-------------------------------------------------------------------------------------------------------------------------------------------------//
 
@@ -69,8 +84,8 @@ public class MonsterPattern_Porin : MonsterPattern
         switch (curMonsterState)
         {
             case MonsterState.Roaming:
-                Roam_Monster();
-                CheckPlayerCollider();
+                //Roam_Monster();
+                // CheckPlayerCollider();
                 break;
             case MonsterState.Discovery:
                 Discovery_Player();
@@ -79,6 +94,36 @@ public class MonsterPattern_Porin : MonsterPattern
                 Tracing_Movement();
                 break;
             case MonsterState.GoingBack:
+                break;
+            default:
+                break;
+        }
+    }
+
+    // * 몬스터 공격 모션, 피격 모션, 죽음 모션
+    public override void Monster_Motion(MonsterMotion monsterMotion)
+    {
+        switch (monsterMotion)
+        {
+            case MonsterMotion.Short_Range_Attack:
+                //근거리 공격
+                if (monsterShortRangeAttack_co != null)
+                    StopCoroutine(monsterShortRangeAttack_co);
+                monsterShortRangeAttack_co = StartCoroutine(MonsterShortRangeAttack());
+                break;
+            case MonsterMotion.Long_Range_Attack:
+                break;
+            case MonsterMotion.GetHit_KnockBack:
+                //피격=>>넉백
+                GetHit();
+
+                break;
+            case MonsterMotion.Death:
+                //죽음
+                if (curMonsterState != MonsterState.Death)
+                {
+                    //StartCoroutine(Death_co());
+                }
                 break;
             default:
                 break;
@@ -97,11 +142,13 @@ public class MonsterPattern_Porin : MonsterPattern
                 m_animator.SetBool("m_Move", true);
                 m_animator.SetBool("m_Idle", false);
                 break;
-            case MonsterAnimation.GetDamage:
+            case MonsterAnimation.GetHit:
                 if (isGround)
                     m_animator.SetTrigger("m_GetDamage_isGround");
                 else
                     m_animator.SetTrigger("m_GetDamage");
+
+                // SetAnimation(MonsterAnimation.Idle);
                 break;
             case MonsterAnimation.Death:
                 m_animator.SetBool("m_Move", false);
@@ -113,8 +160,48 @@ public class MonsterPattern_Porin : MonsterPattern
         }
     }
 
-    //*------------------------------------------------------------------------------------------------------------------------------------------------------//
+    // * 몬스터 추격, 자기자리로 돌아갈 때 ==>>> 몬스터와 플레이어 등  거리 체크
+    public override void CheckDistance()
+    {
+        float distance = 0;
+        //해당 몬스터와 플레이어 사이의 거리 체크
+        switch (curMonsterState)
+        {
+            case MonsterState.Roaming:
+                break;
 
+            case MonsterState.Tracing:
+                distance = Vector3.Distance(transform.position, playerTrans.position);
+                //만약 몬스터와 캐릭터의 거리가 멀어지면, 다시 원위치로.
+                if (distance >= goingBackDistance)
+                {
+
+                    ChangeMonsterState(MonsterState.GoingBack);
+                }
+
+                if (distance <= attackDistance)
+                {
+                    //단거리 공격
+                    ChangeMonsterState(MonsterState.Attack);
+                    Monster_Motion(MonsterMotion.Short_Range_Attack);
+                }
+                break;
+
+            case MonsterState.Attack:
+                break;
+
+            case MonsterState.GoingBack:
+                distance = Vector3.Distance(transform.position, originPosition);
+                if (distance < 1f)
+                {
+                    isGoingBack = false;
+                    ChangeMonsterState(MonsterState.Roaming);
+                }
+                break;
+        }
+    }
+
+    //*------------------------------------------------------------------------------------------------------------------------------------------------------//
     #region 로밍 
     public override void Roam_Monster()
     {
@@ -299,11 +386,8 @@ public class MonsterPattern_Porin : MonsterPattern
     }
 
     #endregion
-
-
     //*------------------------------------------------------------------------------------------------------------------------------------------------------//
     #region 발견
-
     public override void Discovery_Player()
     {
         if (!isFinding)
@@ -344,7 +428,8 @@ public class MonsterPattern_Porin : MonsterPattern
         CheckPlayerCollider();
     }
     #endregion
-
+    //*------------------------------------------------------------------------------------------------------------------------------------------------------//
+    #region 추적
     public override void Tracing_Movement()
     {
         if (!isTracing)
@@ -365,10 +450,122 @@ public class MonsterPattern_Porin : MonsterPattern
         //몬스터와 플레이어 사이의 거리 체크
         CheckDistance();
     }
-    //---------------------------------------------------------------------------------------------------------------------------------------------------//
+    #endregion
+    //*------------------------------------------------------------------------------------------------------------------------------------------------------//
+    #region 다시 자기자리로
+    public override void GoingBack_Movement()
+    {
+        if (isTracing)
+        {
+            isTracing = false;
+            SetPlayerAttackList(false);
+        }
+        isGoingBack = true;
+
+        SetMove_AI(true);
+
+        SetAnimation(MonsterAnimation.Move);
+        navMeshAgent.SetDestination(originPosition);
+        CheckDistance();
+        if (!forcedReturnHome)
+        {
+            //계속 거리 체크
+            CheckPlayerCollider();
+        }
+    }
+    #endregion
+    //*------------------------------------------------------------------------------------------------------------------------------------------------------//
+    #region 근거리 공격
+    IEnumerator MonsterShortRangeAttack()
+    {
+        yield return null;
+    }
+    #endregion
+    //*------------------------------------------------------------------------------------------------------------------------------------------------------//
+    #region 몬스터 넉백(피격)
+    private void GetHit()
+    {
+        //* 피격 이펙트 넣기
+        if (!isGettingHit) //넉백
+        {
+            isGettingHit = true;
+            StartCoroutine(GetHit_KnockBack_co());
+        }
+    }
+
+    IEnumerator GetHit_KnockBack_co()
+    {
+        StopAtackCoroutine();
+
+        MonsterState preState = curMonsterState;
+        ChangeMonsterState(MonsterState.GetHit);
+
+        if (curEffect != null)
+        {
+            //* 공격 이펙트 없앰.
+            curEffect.StopEffect();
+            curEffect = null;
+        }
+
+        SetMove_AI(false);
+        SetAnimation(MonsterAnimation.GetHit);
+
+        Vector3 knockback_Dir = transform.position - playerTrans.position;
+        knockback_Dir = knockback_Dir.normalized;
+
+        Vector3 groundNormal = GetGroundNormal(transform);
+        knockback_Dir = Vector3.ProjectOnPlane(knockback_Dir, groundNormal).normalized;
+
+        Vector3 KnockBackPos = transform.position + knockback_Dir * 2f; // 넉백 시 이동할 위치
+        float time = 0;
+
+        NavMeshHit hit;
+        //* 몬스터가 갈 수 있는 위치일 경우에만 넉백~!
+        if (NavMesh.SamplePosition(KnockBackPos, out hit, 20f, NavMesh.AllAreas))
+        {
+            if (hit.position != KnockBackPos)
+                KnockBackPos = hit.position;
+            while (time < 0.5f)
+            {
+                transform.position = Vector3.Lerp(transform.position, KnockBackPos, 5 * Time.deltaTime);
+
+                if (transform.position == KnockBackPos)
+                    break;
+                else
+                {
+                    time += Time.deltaTime;
+                    yield return null;
+                }
+            }
+        }
+
+        navMeshAgent.Warp(transform.position);
+        yield return new WaitForSeconds(1f);
+
+        //    if (forcedReturnHome)
+        //    {
+        //        SetMove_AI(true);
+        //        ChangeMonsterState(MonsterState.GoingBack);
+        //    }
+        //    else
+        //    {
+        //        SetMove_AI(true);
+        //        ChangeMonsterState(MonsterState.Tracing);
+        //    }
+
+        isGettingHit = false;
+    }
+
+    #endregion
+    //*------------------------------------------------------------------------------------------------------------------------------------------------------//
+    #region 죽음
+    #endregion
+
+    //*------------------------------------------------------------------------------------------------------------------------------------------------------//
     //* 몬스터가 점프하고 바닥에 닿았는지 체크
     public void PorinGroudCheck()
     {
+        m_Vector = new Vector3(transform.position.x, m_collider.gameObject.transform.position.y, transform.position.z);
 
         Debug.DrawRay(m_Vector, -transform.up, Color.red, 5f);
         RaycastHit hit;

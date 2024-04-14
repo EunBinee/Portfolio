@@ -35,4 +35,8 @@ public class GameData
     {
         return cameraObj.GetComponent<CameraController>();
     }
+
+    [Space]
+    [Header("레이어")]
+    public LayerMask monsterLayer;
 }

@@ -11,6 +11,9 @@ Material:
   m_Shader: {fileID: 4800000, guid: b4c58e4c77437344c9597cef480cf15f, type: 3}
   m_ValidKeywords:
   - _EMISSIVE_SIMPLE
+  - _IS_ANGELRING_OFF
+  - _IS_CLIPPING_OFF
+  - _IS_OUTLINE_CLIPPING_NO
   - _OUTLINE_NML
   m_InvalidKeywords:
   - _
@@ -18,7 +21,9 @@ Material:
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap: {}
+  stringTagMap:
+    IgnoreProjection: False
+    RenderType: Opaque
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -408,7 +413,7 @@ Material:
     - _SpecularHighlights: 1
     - _SpecularOcclusionMode: 1
     - _SrcBlend: 1
-    - _StencilComp: 8
+    - _StencilComp: 0
     - _StencilMode: 0
     - _StencilNo: 1
     - _StencilOpFail: 0
@@ -471,8 +476,8 @@ Material:
     - _simpleUI: 0
     - _utsTechnique: 0
     - _utsVersionX: 0
-    - _utsVersionY: 8
-    - _utsVersionZ: 5
+    - _utsVersionY: 5
+    - _utsVersionZ: 0
     m_Colors:
     - _1st_ShadeColor: {r: 0.8396226, g: 0.26667252, b: 0.5679082, a: 1}
     - _2nd_ShadeColor: {r: 1, g: 1, b: 1, a: 1}
@@ -482,7 +487,7 @@ Material:
     - _BaseColor: {r: 1, g: 0.44025153, b: 0.76255816, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
     - _BaseColorMaskColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.4716981, g: 0, b: 0.36618418, a: 0.5019608}
+    - _Color: {r: 1, g: 0.44025153, b: 0.76255816, a: 1}
     - _ColorShift: {r: 0, g: 0, b: 0, a: 1}
     - _DiffusionProfileAsset: {r: 0, g: 0, b: 0, a: 0}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
